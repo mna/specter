@@ -9,7 +9,7 @@ type oSlice struct {
 	expand int
 }
 
-func newOSlice(cap int) *optimizedSlice {
+func newOSlice(cap int) *oSlice {
 	if cap <= 0 {
 		panic("the capacity must be greater than zero")
 	}
@@ -20,7 +20,7 @@ func newOSlice(cap int) *optimizedSlice {
 	}
 }
 
-func (o *oSlice) addIncr(val int) {
+func (o *oSlice) addIncr(val int32) {
 	if o.size > 0 && o.size%o.expand == 0 {
 		// Need to allocate more memory
 		o.alloc()

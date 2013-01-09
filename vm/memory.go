@@ -39,7 +39,7 @@ func (m *memory) pushStack(i int32) {
 	m.stack.addIncr(i)
 }
 
-func (m *memory) popStack(i int32) {
+func (m *memory) popStack(i int32) int32 {
 	m.stack.decr()
 	return m.stack.sl[m.stack.size]
 }
