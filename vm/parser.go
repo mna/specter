@@ -14,7 +14,7 @@ func (vm *VM) parse(r io.Reader) {
 	// Read one line at a time, a single line can contain at most one instruction,
 	// possibly zero if it is only a label (a line may also contain a label AND an
 	// instruction).
-	for l, err := bio.ReadString('\n'); len(l) > 0; l, err = bio.ReadString('\n') {
+	for l, err := bio.ReadString('\n'); true; l, err = bio.ReadString('\n') {
 		// Split the line in tokens (ReadString returns the delimiter)
 		toks := strings.FieldsFunc(l, func(r rune) bool {
 			// Split on either a space, a comma or a tab
@@ -81,6 +81,8 @@ func (vm *VM) parse(r io.Reader) {
 			if err != io.EOF {
 				panic(err)
 			} else {
+				// Insert a program-ending instruction
+				vm.p.instrs.addIncr(int32(_OP_END))
 				break
 			}
 		}
