@@ -21,7 +21,7 @@ func newProgram() *program {
 	return &program{
 		0,
 		newOSlice(_INSTRS_CAP),
-		make([][2]*int32, 0, _ARGS_CAP),
+		make([][2]*int32, _ARGS_CAP, _ARGS_CAP),
 		make(map[string]int, _LABELS_CAP),
 	}
 }

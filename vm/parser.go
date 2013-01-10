@@ -15,11 +15,11 @@ func (vm *VM) parse(r io.Reader) {
 	// possibly zero if it is only a label (a line may also contain a label AND an
 	// instruction).
 	for l, err := bio.ReadString('\n'); len(l) > 0; l, err = bio.ReadString('\n') {
-		// Split the line in tokens
+		// Split the line in tokens (ReadString returns the delimiter)
 		toks := strings.FieldsFunc(l, func(r rune) bool {
 			// Split on either a space, a comma or a tab
 			switch r {
-			case ' ', ',', '\t':
+			case ' ', ',', '\t', '\n':
 				return true
 			}
 			return false

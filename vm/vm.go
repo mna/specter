@@ -83,7 +83,7 @@ type VM struct {
 }
 
 func New() *VM {
-	return &VM{&program{}, newMemory()}
+	return &VM{newProgram(), newMemory()}
 }
 
 // Run executes the vm bytecode read by the reader.
