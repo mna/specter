@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"fmt"
 	"io"
 )
 
@@ -94,11 +95,15 @@ func (vm *VM) Run(r io.Reader) {
 }
 
 func (vm *VM) runInstruction(instrIndex *int) {
-	//a0, a1 := vm.p.args.sl[(*instrIndex)*2], vm.p.args.sl[(*instrIndex)*2+1]
-	switch opcode(vm.p.instrs.sl[*instrIndex]) {
-	case _OP_NOP:
-	case _OP_INT:
-	case _OP_MOV:
-		//*a0 = *a1
-	}
+	a0, a1 := vm.p.args[*instrIndex][0], vm.p.args[*instrIndex][1]
+	fmt.Printf("%x %d %d\n", vm.p.instrs.sl[*instrIndex], *a0, *a1)
+	/*
+		//a0, a1 := vm.p.args.sl[(*instrIndex)*2], vm.p.args.sl[(*instrIndex)*2+1]
+		switch opcode(vm.p.instrs.sl[*instrIndex]) {
+		case _OP_NOP:
+		case _OP_INT:
+		case _OP_MOV:
+			//*a0 = *a1
+		}
+	*/
 }

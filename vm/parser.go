@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ func (vm *VM) parse(r io.Reader) {
 			}
 
 			// Is it a label definition?
-			if vm.parseLabel(tok) {
+			if vm.parseLabelDef(tok) {
 				if hasInstr {
 					panic(fmt.Sprintf("cannot define label '%s' after an instruction on the same line", tok))
 				}
@@ -56,10 +57,22 @@ func (vm *VM) parse(r io.Reader) {
 			// an argument. Make sure an instruction has been found.
 			if !hasInstr {
 				panic(fmt.Sprintf("found argument token '%s' without an instruction", tok))
+			} else if argIdx > 1 {
+				panic(fmt.Sprintf("found excessive argument token '%s' after two arguments", tok))
 			}
 			if vm.parseRegister(tok, argIdx) {
 				argIdx++
 				continue
+			}
+			if vm.parseLabelVal(tok, argIdx) {
+				argIdx++
+				continue
+			}
+
+			// Parse value panics if the value is invalid, so must be last, and no need 
+			// to add a panic after the call (or a continue)
+			if vm.parseValue(tok, argIdx) {
+				argIdx++
 			}
 		}
 
@@ -72,6 +85,40 @@ func (vm *VM) parse(r io.Reader) {
 			}
 		}
 	}
+}
+
+func (vm *VM) parseValue(tok string, argIdx int) bool {
+	sepIdx := strings.IndexRune(tok, '|')
+	base := 0
+	val := tok
+
+	if sepIdx > 0 && sepIdx < (len(tok)-1) {
+		val = tok[:sepIdx]
+		switch tok[sepIdx+1:] {
+		case "h":
+			base = 16
+		case "d":
+			base = 10
+		case "o":
+			base = 8
+		case "b":
+			base = 2
+		default:
+			panic(fmt.Sprintf("invalid base notation for value token '%s'", tok))
+		}
+	}
+	if i, err := strconv.ParseInt(val, base, 32); err != nil {
+		panic(err)
+	} else {
+		// The instructions pointer points on the next instruction slot at this point,
+		// so use minus one.
+		// In Go, it is totally legal to grab the address of a stack variable, so
+		// we can avoid the p.values slice altogether.
+		var i32 int32 = int32(i)
+		vm.p.args[vm.p.instrs.size-1][argIdx] = &i32
+		return true
+	}
+	panic("unreachable")
 }
 
 func (vm *VM) parseRegister(tok string, argIdx int) bool {
@@ -95,7 +142,21 @@ func (vm *VM) parseInstr(tok string) bool {
 	return false
 }
 
-func (vm *VM) parseLabel(tok string) bool {
+func (vm *VM) parseLabelVal(tok string, argIdx int) bool {
+	if instr, ok := vm.p.labels[tok]; ok {
+		// The instructions pointer points on the next instruction slot at this point,
+		// so use minus one.
+		// In Go, it is totally legal to grab the address of a stack variable, so
+		// we can avoid the p.values slice altogether.
+		var i32 int32 = int32(instr)
+		vm.p.args[vm.p.instrs.size-1][argIdx] = &i32
+		return true
+	}
+
+	return false
+}
+
+func (vm *VM) parseLabelDef(tok string) bool {
 	if strings.HasSuffix(tok, ":") {
 		// This is a label
 		lbl := tok[:len(tok)-1]
