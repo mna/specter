@@ -88,6 +88,7 @@ func New() *VM {
 
 // Run executes the vm bytecode read by the reader.
 func (vm *VM) Run(r io.Reader) {
+	// TODO : Init program and memory here instead of in new vm
 	vm.parse(r)
 	for i := vm.p.start; vm.p.instrs.sl[i] != -1; i++ {
 		vm.runInstruction(&i)
