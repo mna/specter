@@ -81,7 +81,7 @@ func (vm *VM) parse(r io.Reader) {
 		// Loop through the tokens, store arguments
 		hasInstr := false
 		argIdx := 0
-		fmt.Printf("processing line %+v\n", toks)
+		//fmt.Printf("processing line %+v\n", toks)
 
 		for _, tok := range toks {
 			if strings.HasPrefix(tok, "#") {
@@ -95,14 +95,14 @@ func (vm *VM) parse(r io.Reader) {
 
 			// Is it a label definition?
 			if isLabel(tok) {
-				fmt.Println("found label ", tok)
+				//fmt.Println("found label ", tok)
 				continue
 			}
 
 			// Is it an instruction (opcode)?
 			if _, ok := opsMap[tok]; ok {
 				instrIdx++
-				fmt.Printf("found opcode %s [%d]\n", tok, instrIdx)
+				//fmt.Printf("found opcode %s [%d]\n", tok, instrIdx)
 				hasInstr = true
 				continue
 			}
@@ -115,19 +115,19 @@ func (vm *VM) parse(r io.Reader) {
 				panic(fmt.Sprintf("found excessive argument token '%s' after two arguments", tok))
 			}
 			if vm.parseRegister(tok, instrIdx, argIdx) {
-				fmt.Println("found register ", tok)
+				//fmt.Println("found register ", tok)
 				argIdx++
 				continue
 			}
 			if vm.parseLabelVal(tok, instrIdx, argIdx) {
-				fmt.Println("found label jump ", tok)
+				//fmt.Println("found label jump ", tok)
 				argIdx++
 				continue
 			}
 			// Parse value panics if the value is invalid, so must be last, and no need 
 			// to add a panic after the call (or a continue)
 			if vm.parseValue(tok, instrIdx, argIdx) {
-				fmt.Println("found value ", tok)
+				//fmt.Println("found value ", tok)
 				argIdx++
 			}
 		}
@@ -170,7 +170,7 @@ func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
 
 func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
 	if reg, ok := rgsMap[tok]; ok {
-		vm.p.args[instrIdx][argIdx] = &vm.m.registers[reg].i32
+		vm.p.args[instrIdx][argIdx] = &vm.m.registers[reg]
 		return true
 	}
 

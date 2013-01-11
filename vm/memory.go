@@ -6,12 +6,12 @@ const (
 
 // TODO :  Start with this straightforward implementation (using 12 bytes), and later
 // try with an interface{} field, and with a [4]byte array.
-type register struct {
-	i32     int32
-	i32_ptr *int32
-	i16_h   int16
-	i16_l   int16
-}
+
+// i32_ptr is not needed, TinyVM uses it for registers that hold stack limits.
+// i16 (high and low) is unused in TinyVM, dropped from this implementation.
+// So register is basically an int32!
+// Don't even use a type, causes problems to store in args which is *int32
+// type register int32 
 
 type memory struct {
 	// Special-use "registers"
@@ -19,7 +19,7 @@ type memory struct {
 	remainder int32
 
 	// A fixed array for the regular registers
-	registers [rg_count]register
+	registers [rg_count]int32
 
 	// Different approach than TinyVM for the stack, since it can only hold
 	// integers, use a slice that grows by `stackCap` increments.

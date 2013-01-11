@@ -27,18 +27,8 @@ func (vm *VM) Run(r io.Reader) {
 func (vm *VM) runInstruction(instrIndex *int32) {
 	a0, a1 := vm.p.args[*instrIndex][0], vm.p.args[*instrIndex][1]
 
-	/*
-		switch {
-		case a0 == nil && a1 == nil:
-			fmt.Printf("instr=%d: %x (%s)\n", *instrIndex, vm.p.instrs.sl[*instrIndex], opcode(vm.p.instrs.sl[*instrIndex]))
-		case a1 == nil:
-			fmt.Printf("instr=%d: %x (%s) a0=%d\n", *instrIndex, vm.p.instrs.sl[*instrIndex], opcode(vm.p.instrs.sl[*instrIndex]), *a0)
-		case a0 == nil:
-			fmt.Printf("instr=%d: %x (%s) a0=nil, a1=%d\n", *instrIndex, vm.p.instrs.sl[*instrIndex], opcode(vm.p.instrs.sl[*instrIndex]), *a1)
-		default:
-			fmt.Printf("instr=%d: %x (%s) a0=%d, a1=%d\n", *instrIndex, vm.p.instrs.sl[*instrIndex], opcode(vm.p.instrs.sl[*instrIndex]), *a0, *a1)
-		}
-	*/
+	//printInstr("before", *instrIndex, opcode(vm.p.instrs.sl[*instrIndex]), a0, a1)
+
 	switch opcode(vm.p.instrs.sl[*instrIndex]) {
 	case _OP_NOP:
 		// Nothing
@@ -94,6 +84,7 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 		}
 	case _OP_CALL:
 		vm.m.pushStack(*instrIndex)
+		fallthrough
 	case _OP_JMP:
 		*instrIndex = *a0 - 1
 	case _OP_RET:
@@ -124,5 +115,25 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 		}
 	case _OP_PRN:
 		fmt.Println(*a0)
+	}
+	/*
+		if *instrIndex >= 0 {
+			printInstr("after", *instrIndex, opcode(vm.p.instrs.sl[*instrIndex]), a0, a1)
+		} else {
+			printInstr("after", *instrIndex, opcode(vm.p.instrs.sl[*instrIndex+1]), a0, a1)
+		}
+	*/
+}
+
+func printInstr(prefix string, idx int32, op opcode, a0, a1 *int32) {
+	switch {
+	case a0 == nil && a1 == nil:
+		fmt.Printf("[%s] instr=%d: %d (%s) a0=nil, a1=nil\n", prefix, idx, op, op)
+	case a1 == nil:
+		fmt.Printf("[%s] instr=%d: %d (%s) a0=%d, a1=nil\n", prefix, idx, op, op, *a0)
+	case a0 == nil:
+		fmt.Printf("[%s] instr=%d: %d (%s) a0=nil, a1=%d\n", prefix, idx, op, op, *a1)
+	default:
+		fmt.Printf("[%s] instr=%d: %d (%s) a0=%d, a1=%d\n", prefix, idx, op, op, *a0, *a1)
 	}
 }
