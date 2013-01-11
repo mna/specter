@@ -1,0 +1,7 @@
+  mov eax, 0
+
+loop:
+  nop 10, 12, ebx, 34
+  inc eax
+  cmp eax, 10
+  jl loop
