@@ -15,10 +15,12 @@ func TestExamples(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, fi := range files {
-		if f, err := os.Open(filepath.Join(dir, fi.Name())); err != nil {
-			t.Error(err)
-		} else {
-			runExample(t, f)
+		if filepath.Ext(fi.Name()) == ".vm" {
+			if f, err := os.Open(filepath.Join(dir, fi.Name())); err != nil {
+				t.Error(err)
+			} else {
+				runExample(t, f)
+			}
 		}
 	}
 }

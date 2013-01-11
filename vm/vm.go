@@ -55,9 +55,35 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 	case _OP_POPF:
 		vm.m.popStack(a0)
 	case _OP_INC:
-		fmt.Printf("before increment, content of *a0=%d\n", *a0)
 		(*a0)++
-		fmt.Printf("after increment, content of *a0=%d\n", *a0)
+	case _OP_DEC:
+		(*a0)--
+	case _OP_ADD:
+		*a0 += *a1
+	case _OP_SUB:
+		*a0 -= *a1
+	case _OP_MUL:
+		*a0 *= *a1
+	case _OP_DIV:
+		*a0 /= *a1
+	case _OP_MOD:
+		vm.m.remainder = *a0 % *a1
+	case _OP_REM:
+		*a0 = vm.m.remainder
+	case _OP_NOT:
+		*a0 = ^(*a0)
+	case _OP_XOR:
+		*a0 ^= *a1
+	case _OP_OR:
+		*a0 |= *a1
+	case _OP_AND:
+		*a0 &= *a1
+	case _OP_SHL:
+		// TODO : Unimplemented, cannot shift on unsigned int32
+		//*a0 <<= *a1
+	case _OP_SHR:
+		// TODO : Unimplemented, cannot shift on unsigned int32
+		//*a0 >>= *a1
 	case _OP_CMP:
 		if *a0 == *a1 {
 			vm.m.FLAGS = 0x1
@@ -66,10 +92,37 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 		} else {
 			vm.m.FLAGS = 0x0
 		}
+	case _OP_CALL:
+		vm.m.pushStack(*instrIndex)
+	case _OP_JMP:
+		*instrIndex = *a0 - 1
+	case _OP_RET:
+		vm.m.popStack(instrIndex)
+	case _OP_JE:
+		if vm.m.FLAGS&0x1 != 0 {
+			*instrIndex = *a0 - 1
+		}
+	case _OP_JNE:
+		if vm.m.FLAGS&0x1 == 0 {
+			*instrIndex = *a0 - 1
+		}
+	case _OP_JG:
+		if vm.m.FLAGS&0x2 != 0 {
+			*instrIndex = *a0 - 1
+		}
+	case _OP_JGE:
+		if vm.m.FLAGS&0x3 != 0 {
+			*instrIndex = *a0 - 1
+		}
 	case _OP_JL:
 		if vm.m.FLAGS&0x3 == 0 {
 			*instrIndex = *a0 - 1
-			fmt.Printf("jump to instr %d+1\n", *instrIndex)
 		}
+	case _OP_JLE:
+		if vm.m.FLAGS&0x2 == 0 {
+			*instrIndex = *a0 - 1
+		}
+	case _OP_PRN:
+		fmt.Println(*a0)
 	}
 }
