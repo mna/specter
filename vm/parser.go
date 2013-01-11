@@ -8,32 +8,36 @@ import (
 	"strings"
 )
 
+const (
+	_LINES_CAP  = 100
+	_TOKENS_CAP = 4 // Optional label def, instruction code, and 2 args
+)
+
 func (vm *VM) parse(r io.Reader) {
 	bio := bufio.NewReader(r)
+	lines := make([][]string, 0, _LINES_CAP)
+	lIdx := 0
 
-	// Read one line at a time, a single line can contain at most one instruction,
-	// possibly zero if it is only a label (a line may also contain a label AND an
-	// instruction).
+	// First pass is to load label definitions only, since it has to be there
+	// before parsing the instructions.
 	for l, err := bio.ReadString('\n'); true; l, err = bio.ReadString('\n') {
 		// Split the line in tokens (ReadString returns the delimiter)
-		toks := strings.FieldsFunc(l, func(r rune) bool {
+		lines = append(lines, strings.FieldsFunc(l, func(r rune) bool {
 			// Split on either a space, a comma or a tab
 			switch r {
 			case ' ', ',', '\t', '\n':
 				return true
 			}
 			return false
-		})
+		}))
 
-		// Loop through the tokens, store labels, instructions and arguments
 		hasInstr := false
-		argIdx := 0
-		for _, tok := range toks {
+		// Loop through the tokens, store labels and instructions
+		for _, tok := range lines[lIdx] {
 			if strings.HasPrefix(tok, "#") {
 				// This is a comment, ignore all other tokens on this line
 				break
 			}
-
 			// Ignore empty tokens
 			if tok == "" {
 				continue
@@ -49,6 +53,53 @@ func (vm *VM) parse(r io.Reader) {
 
 			// Is it an instruction (opcode)?
 			if vm.parseInstr(tok) {
+				hasInstr = true
+				continue
+			}
+		}
+
+		// If EOF or error, return
+		if err != nil {
+			if err != io.EOF {
+				panic(err)
+			} else {
+				break
+			}
+		}
+		// Increment line index
+		lIdx++
+	}
+
+	fmt.Printf("labels=%+v\n", vm.p.labels)
+	// Here we know exactly the number of instructions, so allocate the right size
+	// for the arguments slice
+	vm.p.args = make([][2]*int32, vm.p.instrs.size)
+
+	// Next, parse instruction arguments one line at a time, a single line can contain at most one instruction,
+	// possibly zero if it is only a label (a line may also contain a label AND an
+	// instruction).
+	for _, toks := range lines {
+		// Loop through the tokens, store arguments
+		hasInstr := false
+		argIdx := 0
+		fmt.Printf("processing line %+v\n", toks)
+		for _, tok := range toks {
+			if strings.HasPrefix(tok, "#") {
+				// This is a comment, ignore all other tokens on this line
+				break
+			}
+			// Ignore empty tokens
+			if tok == "" {
+				continue
+			}
+
+			// Is it a label definition?
+			if isLabel(tok) {
+				continue
+			}
+
+			// Is it an instruction (opcode)?
+			if _, ok := opsMap[tok]; ok {
 				hasInstr = true
 				continue
 			}
@@ -68,25 +119,15 @@ func (vm *VM) parse(r io.Reader) {
 				argIdx++
 				continue
 			}
-
 			// Parse value panics if the value is invalid, so must be last, and no need 
 			// to add a panic after the call (or a continue)
 			if vm.parseValue(tok, argIdx) {
 				argIdx++
 			}
 		}
-
-		// If EOF or error, return
-		if err != nil {
-			if err != io.EOF {
-				panic(err)
-			} else {
-				// Insert a program-ending instruction
-				vm.p.instrs.addIncr(int32(_OP_END))
-				break
-			}
-		}
 	}
+	// Insert a program-ending instruction
+	vm.p.instrs.addIncr(int32(_OP_END))
 }
 
 func (vm *VM) parseValue(tok string, argIdx int) bool {
@@ -159,10 +200,15 @@ func (vm *VM) parseLabelVal(tok string, argIdx int) bool {
 }
 
 func (vm *VM) parseLabelDef(tok string) bool {
-	if strings.HasSuffix(tok, ":") {
+	if isLabel(tok) {
 		// This is a label
 		lbl := tok[:len(tok)-1]
 
+		// Check if this is a register name (invalid label)
+		if _, ok := rgsMap[lbl]; ok {
+			// This label uses a register name
+			panic(fmt.Sprintf("the register name '%s' cannot be used as label", lbl))
+		}
 		// Check if this is a duplicate TODO : Return error instead?
 		if _, ok := vm.p.labels[lbl]; ok {
 			// This label already exists
@@ -179,4 +225,8 @@ func (vm *VM) parseLabelDef(tok string) bool {
 	}
 
 	return false
+}
+
+func isLabel(tok string) bool {
+	return strings.HasSuffix(tok, ":")
 }

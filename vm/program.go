@@ -3,7 +3,6 @@ package vm
 const (
 	_LABELS_CAP = 10 // Labels map capacity increments by this number
 	_INSTRS_CAP = 10
-	_ARGS_CAP   = _INSTRS_CAP * 2 // Maximum of 2 args per instruction in this VM
 )
 
 type program struct {
@@ -21,7 +20,7 @@ func newProgram() *program {
 	return &program{
 		0,
 		newOSlice(_INSTRS_CAP),
-		make([][2]*int32, _ARGS_CAP, _ARGS_CAP),
+		nil,
 		make(map[string]int, _LABELS_CAP),
 	}
 }
