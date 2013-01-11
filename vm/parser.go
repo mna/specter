@@ -9,8 +9,7 @@ import (
 )
 
 const (
-	_LINES_CAP  = 100
-	_TOKENS_CAP = 4 // Optional label def, instruction code, and 2 args
+	_LINES_CAP = 100
 )
 
 func (vm *VM) parse(r io.Reader) {
@@ -70,7 +69,6 @@ func (vm *VM) parse(r io.Reader) {
 		lIdx++
 	}
 
-	fmt.Printf("labels=%+v\n", vm.p.labels)
 	// Here we know exactly the number of instructions, so allocate the right size
 	// for the arguments slice
 	vm.p.args = make([][2]*int32, vm.p.instrs.size)
@@ -78,11 +76,13 @@ func (vm *VM) parse(r io.Reader) {
 	// Next, parse instruction arguments one line at a time, a single line can contain at most one instruction,
 	// possibly zero if it is only a label (a line may also contain a label AND an
 	// instruction).
+	instrIdx := -1
 	for _, toks := range lines {
 		// Loop through the tokens, store arguments
 		hasInstr := false
 		argIdx := 0
 		fmt.Printf("processing line %+v\n", toks)
+
 		for _, tok := range toks {
 			if strings.HasPrefix(tok, "#") {
 				// This is a comment, ignore all other tokens on this line
@@ -95,11 +95,14 @@ func (vm *VM) parse(r io.Reader) {
 
 			// Is it a label definition?
 			if isLabel(tok) {
+				fmt.Println("found label ", tok)
 				continue
 			}
 
 			// Is it an instruction (opcode)?
 			if _, ok := opsMap[tok]; ok {
+				instrIdx++
+				fmt.Printf("found opcode %s [%d]\n", tok, instrIdx)
 				hasInstr = true
 				continue
 			}
@@ -111,17 +114,20 @@ func (vm *VM) parse(r io.Reader) {
 			} else if argIdx > 1 {
 				panic(fmt.Sprintf("found excessive argument token '%s' after two arguments", tok))
 			}
-			if vm.parseRegister(tok, argIdx) {
+			if vm.parseRegister(tok, instrIdx, argIdx) {
+				fmt.Println("found register ", tok)
 				argIdx++
 				continue
 			}
-			if vm.parseLabelVal(tok, argIdx) {
+			if vm.parseLabelVal(tok, instrIdx, argIdx) {
+				fmt.Println("found label jump ", tok)
 				argIdx++
 				continue
 			}
 			// Parse value panics if the value is invalid, so must be last, and no need 
 			// to add a panic after the call (or a continue)
-			if vm.parseValue(tok, argIdx) {
+			if vm.parseValue(tok, instrIdx, argIdx) {
+				fmt.Println("found value ", tok)
 				argIdx++
 			}
 		}
@@ -130,7 +136,7 @@ func (vm *VM) parse(r io.Reader) {
 	vm.p.instrs.addIncr(int32(_OP_END))
 }
 
-func (vm *VM) parseValue(tok string, argIdx int) bool {
+func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
 	sepIdx := strings.IndexRune(tok, '|')
 	base := 0
 	val := tok
@@ -153,22 +159,18 @@ func (vm *VM) parseValue(tok string, argIdx int) bool {
 	if i, err := strconv.ParseInt(val, base, 32); err != nil {
 		panic(err)
 	} else {
-		// The instructions pointer points on the next instruction slot at this point,
-		// so use minus one.
 		// In Go, it is totally legal to grab the address of a stack variable, so
 		// we can avoid the p.values slice altogether.
 		var i32 int32 = int32(i)
-		vm.p.args[vm.p.instrs.size-1][argIdx] = &i32
+		vm.p.args[instrIdx][argIdx] = &i32
 		return true
 	}
 	panic("unreachable")
 }
 
-func (vm *VM) parseRegister(tok string, argIdx int) bool {
+func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
 	if reg, ok := rgsMap[tok]; ok {
-		// The instructions pointer points on the next instruction slot at this point,
-		// so use minus one.
-		vm.p.args[vm.p.instrs.size-1][argIdx] = &vm.m.registers[reg].i32
+		vm.p.args[instrIdx][argIdx] = &vm.m.registers[reg].i32
 		return true
 	}
 
@@ -185,14 +187,12 @@ func (vm *VM) parseInstr(tok string) bool {
 	return false
 }
 
-func (vm *VM) parseLabelVal(tok string, argIdx int) bool {
+func (vm *VM) parseLabelVal(tok string, instrIdx int, argIdx int) bool {
 	if instr, ok := vm.p.labels[tok]; ok {
-		// The instructions pointer points on the next instruction slot at this point,
-		// so use minus one.
 		// In Go, it is totally legal to grab the address of a stack variable, so
 		// we can avoid the p.values slice altogether.
 		var i32 int32 = int32(instr)
-		vm.p.args[vm.p.instrs.size-1][argIdx] = &i32
+		vm.p.args[instrIdx][argIdx] = &i32
 		return true
 	}
 

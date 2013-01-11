@@ -110,6 +110,10 @@ var (
 	}
 )
 
+func (o opcode) String() string {
+	return opsRev[o]
+}
+
 type regcode int32
 
 const (

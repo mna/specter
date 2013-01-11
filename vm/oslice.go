@@ -1,19 +1,15 @@
 package vm
 
-import (
-	"fmt"
-)
-
 // "Optimized" slice, for the needs of the VM. Basically, the length is available
 // by reading a field (no len() call), and when it needs to be expanded, it expands
 // by increments of its original capacity.
 type oSlice struct {
 	sl     []int32
-	size   int
-	expand int
+	size   int32
+	expand int32
 }
 
-func newOSlice(c int) *oSlice {
+func newOSlice(c int32) *oSlice {
 	if c <= 0 {
 		panic("the capacity must be greater than zero")
 	}
@@ -25,11 +21,8 @@ func newOSlice(c int) *oSlice {
 }
 
 func (o *oSlice) addIncr(val int32) {
-	fmt.Printf("o.size=%d, o.expand=%d\n", o.size, o.expand)
-	fmt.Printf("o.len=%d, o.cap=%d\n", len(o.sl), cap(o.sl))
 	if o.size > 0 && (o.size%o.expand) == 0 {
 		// Need to allocate more memory
-		fmt.Println("call alloc")
 		o.alloc()
 	}
 
@@ -48,5 +41,4 @@ func (o *oSlice) alloc() {
 	sl := make([]int32, newSz, newSz)
 	copy(sl, o.sl)
 	o.sl = sl
-	fmt.Printf("After alloc, o.len=%d, o.cap=%d\n", len(o.sl), cap(o.sl))
 }

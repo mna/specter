@@ -15,8 +15,8 @@ type register struct {
 
 type memory struct {
 	// Special-use "registers"
-	FLAGS     int
-	remainder int
+	FLAGS     int32
+	remainder int32
 
 	// A fixed array for the regular registers
 	registers [rg_count]register
