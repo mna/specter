@@ -105,7 +105,7 @@ func (vm *VM) parse(r io.Reader) {
 			}
 
 			// Is it a label definition?
-			if isLabel(tok) {
+			if strings.HasSuffix(tok, ":") {
 				//fmt.Println("found label ", tok)
 				continue
 			}
@@ -211,7 +211,7 @@ func (vm *VM) parseLabelVal(tok string, instrIdx int, argIdx int) bool {
 }
 
 func (vm *VM) parseLabelDef(tok string) bool {
-	if isLabel(tok) {
+	if strings.HasSuffix(tok, ":") {
 		// This is a label
 		lbl := tok[:len(tok)-1]
 
@@ -236,8 +236,4 @@ func (vm *VM) parseLabelDef(tok string) bool {
 	}
 
 	return false
-}
-
-func isLabel(tok string) bool {
-	return strings.HasSuffix(tok, ":")
 }

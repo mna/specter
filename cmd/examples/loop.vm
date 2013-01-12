@@ -1,5 +1,5 @@
 loop: inc eax
-  cmp eax, 1000|h
+  cmp eax, 10000|h
   prn eax
 
   jl loop

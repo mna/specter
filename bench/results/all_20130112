@@ -1,0 +1,109 @@
+Running benchmark for fact.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+0.88u 1.44s 2.77r 4063232kB ./loop_tvm.sh fact 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+2.03u 0.84s 3.56r 5505024kB ./loop_specter.sh fact 1000
+
+Running benchmark for fib.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+0.80u 0.71s 1.93r 4063232kB ./loop_tvm.sh fib 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+1.98u 0.83s 3.51r 5652480kB ./loop_specter.sh fib 1000
+
+Running benchmark for jsr.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+0.80u 1.46s 2.72r 4063232kB ./loop_tvm.sh jsr 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+1.95u 0.82s 3.46r 5668864kB ./loop_specter.sh jsr 1000
+
+Running benchmark for loop.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+1.27u 0.71s 2.39r 4063232kB ./loop_tvm.sh loop 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+4.61u 2.46s 7.77r 5652480kB ./loop_specter.sh loop 1000
+
+Running benchmark for nop.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+21.38u 0.78s 22.59r 4063232kB ./loop_tvm.sh nop 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+38.51u 0.84s 40.03r 5308416kB ./loop_specter.sh nop 1000
+
+Running benchmark for primes.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+0.84u 0.71s 1.97r 4063232kB ./loop_tvm.sh primes 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+2.01u 0.82s 3.54r 5668864kB ./loop_specter.sh primes 1000
+
+Running benchmark for stack_bench.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+0.82u 1.56s 2.84r 4063232kB ./loop_tvm.sh stack_bench 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+1.97u 0.82s 3.51r 5668864kB ./loop_specter.sh stack_bench 1000
+
+Running benchmark for euler1.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+108.98u 0.82s 110.24r 4063232kB ./loop_tvm.sh euler1 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+124.19u 0.94s 125.82r 5668864kB ./loop_specter.sh euler1 1000
+
+Running benchmark for euler1_nodiv.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+21.38u 0.79s 22.59r 4063232kB ./loop_tvm.sh euler1_nodiv 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+20.02u 0.85s 21.55r 5685248kB ./loop_specter.sh euler1_nodiv 1000
+
+Running benchmark for euler2.vm 1000 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+0.84u 0.73s 1.99r 4063232kB ./loop_tvm.sh euler2 1000
+
+Specter
+user-time sys-time real-time max-mem cmd...
+1.98u 0.81s 3.50r 5685248kB ./loop_specter.sh euler2 1000
+
+Running benchmark for euler7.vm 4 times
+
+TinyVM
+user-time sys-time real-time max-mem cmd...
+129.50u 0.02s 129.53r 4030464kB ./loop_tvm.sh euler7 4
+
+Specter
+user-time sys-time real-time max-mem cmd...
+154.87u 0.03s 154.90r 5341184kB ./loop_specter.sh euler7 4
