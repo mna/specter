@@ -151,9 +151,11 @@ The square brackets are not to be used in actual TVM programs.
 
     [shl arg0, arg1]
     Shift arg0 left by arg1 places
+    ** Unimplemented in Go's specter, cannot shift on signed integer **
 
     [shr arg0, arg1]
     Shifts arg0 right by arg1 places
+    ** Unimplemented in Go's specter, cannot shift on signed integer **
 
   // VI. Comparison //
 

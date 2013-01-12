@@ -9,9 +9,19 @@ import (
 )
 
 const (
-	_LINES_CAP = 100
+	_LINES_CAP = 1000
 	_MAX_ARGS  = 2
 )
+
+/*
+func (vm *VM) parse2(r io.Reader) {
+	bts, err := ioutil.ReadAll(r)
+	if err != nil {
+		panic(err)
+	}
+	vm.parse(bytes.NewReader(bts))
+}
+*/
 
 func (vm *VM) parse(r io.Reader) {
 	bio := bufio.NewReader(r)

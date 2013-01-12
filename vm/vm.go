@@ -69,10 +69,10 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 	case _OP_AND:
 		*a0 &= *a1
 	case _OP_SHL:
-		// TODO : Unimplemented, cannot shift on unsigned int32
+		// TODO : Unimplemented, cannot shift on signed int32
 		//*a0 <<= *a1
 	case _OP_SHR:
-		// TODO : Unimplemented, cannot shift on unsigned int32
+		// TODO : Unimplemented, cannot shift on signed int32
 		//*a0 >>= *a1
 	case _OP_CMP:
 		if *a0 == *a1 {
