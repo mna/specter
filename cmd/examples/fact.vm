@@ -18,12 +18,12 @@ end_fact:
   pop eax
   ret
 
-# print n! for 0<n<10
+# print n! for 0<n<20
 
 start:
   mov eax, 0
 loop: inc eax
   call fact
   prn ebx
-  cmp eax, 10
+  cmp eax, 20
   jl loop

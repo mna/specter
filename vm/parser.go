@@ -10,6 +10,7 @@ import (
 
 const (
 	_LINES_CAP = 100
+	_MAX_ARGS  = 2
 )
 
 func (vm *VM) parse(r io.Reader) {
@@ -71,7 +72,7 @@ func (vm *VM) parse(r io.Reader) {
 
 	// Here we know exactly the number of instructions, so allocate the right size
 	// for the arguments slice
-	vm.p.args = make([][2]*int32, vm.p.instrs.size)
+	vm.p.args = make([][_MAX_ARGS]*int32, vm.p.instrs.size)
 
 	// Next, parse instruction arguments one line at a time, a single line can contain at most one instruction,
 	// possibly zero if it is only a label (a line may also contain a label AND an
@@ -111,8 +112,8 @@ func (vm *VM) parse(r io.Reader) {
 			// an argument. Make sure an instruction has been found.
 			if !hasInstr {
 				panic(fmt.Sprintf("found argument token '%s' without an instruction", tok))
-			} else if argIdx > 1 {
-				panic(fmt.Sprintf("found excessive argument token '%s' after two arguments", tok))
+			} else if argIdx >= _MAX_ARGS {
+				panic(fmt.Sprintf("found excessive argument token '%s' after %d arguments", tok, _MAX_ARGS))
 			}
 			if vm.parseRegister(tok, instrIdx, argIdx) {
 				//fmt.Println("found register ", tok)

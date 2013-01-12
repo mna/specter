@@ -1,8 +1,8 @@
 package vm
 
 const (
-	_LABELS_CAP = 10 // Labels map capacity increments by this number
-	_INSTRS_CAP = 10
+	_LABELS_CAP = 4096            // Labels map capacity increments by this number
+	_INSTRS_CAP = _LABELS_CAP * 3 // n times more instrs than labels
 )
 
 type program struct {
@@ -10,7 +10,7 @@ type program struct {
 	instrs *oSlice
 
 	// TODO : extract interface from oSlice, use same pattern for args and labels?
-	args   [][2]*int32
+	args   [][_MAX_ARGS]*int32
 	labels map[string]int32
 }
 

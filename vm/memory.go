@@ -1,7 +1,7 @@
 package vm
 
 const (
-	_STACK_CAP = 10 // Allocate the stack in increments of a capacity of 10 elements
+	_STACK_CAP = (2 * 1024 * 1024) / 4 // Allocate the stack in increments of a capacity of n elements
 )
 
 // TODO :  Start with this straightforward implementation (using 12 bytes), and later
@@ -15,6 +15,9 @@ const (
 
 type memory struct {
 	// Special-use "registers"
+	// FLAGS is similar to x86 register: 
+	// 0x1 = equal
+	// 0x2 = greater
 	FLAGS     int32
 	remainder int32
 
