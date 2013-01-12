@@ -14,4 +14,4 @@ By default (if neither FILE nor LOOPS are specified), it runs with `fib` and `10
 
 ## Performance
 
-At the moment, Go's implementation is a little less than twice the time of the C implementation. I'm positive optimizations can be made, as this is pretty much a first draft of porting TinyVM's code.
+At the moment, Go's implementation is between 1.3 and 1.8 times the C implementation (except `loop.vm` which is 3 times slower). I'm positive optimizations can be made, as this is pretty much a first draft of porting TinyVM's code.
