@@ -8,10 +8,13 @@ const (
 // i32_ptr is not needed, TinyVM uses it for registers that hold stack limits.
 // i16 (high and low) is unused in TinyVM, dropped from this implementation.
 // So register is basically an int32!
-// Don't even use a type, causes problems to store in args which is *int32 :
+// Don't even use a type, it causes problems to store in args which is *int32 :
 //
 // type register int32 
 
+// The memory struct holds the memory representation of the VM (the registers 
+// and the stack). Unlike the C TinyVM, there is no "heap" memory implemented
+// at the moment.
 type memory struct {
 	// Special-use "registers"
 	// FLAGS is similar to x86 register: 
@@ -28,6 +31,7 @@ type memory struct {
 	stack *oSlice
 }
 
+// Create a memory struct
 func newMemory() *memory {
 	var m memory
 
@@ -36,10 +40,12 @@ func newMemory() *memory {
 	return &m
 }
 
+// Push value on the stack.
 func (m *memory) pushStack(i int32) {
 	m.stack.addIncr(i)
 }
 
+// Pop value from the stack.
 func (m *memory) popStack(i *int32) {
 	m.stack.decr()
 	*i = m.stack.sl[m.stack.size]

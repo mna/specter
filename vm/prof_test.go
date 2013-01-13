@@ -5,8 +5,9 @@ import (
 	"testing"
 )
 
-const file = "/Users/martin/go/src/github.com/PuerkitoBio/specter/cmd/examples/loop.vm"
+const file = "/Users/martin/go/src/github.com/PuerkitoBio/specter/cmd/examples/euler7.vm"
 
+// Benchmark function used for profiling (see ../bench/Makefile : run-prof)
 func BenchmarkForProfiling(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vm := New()

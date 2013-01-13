@@ -1,10 +1,15 @@
 package vm
 
 const (
-	_LABELS_CAP = 100             // Labels map initial capacity, it grows as needed
-	_INSTRS_CAP = _LABELS_CAP * 3 // n times more instrs than labels
+	// Labels map initial capacity, it grows as needed
+	_LABELS_CAP = 100
+
+	// n times more instrs than labels 
+	_INSTRS_CAP = _LABELS_CAP * 5
 )
 
+// The program struct holds the instructions to execute, the arguments, the labels,
+// and the start instruction index.
 type program struct {
 	start  int32 // Instruction index of the (optional) start label (or 0 - start at beginning)
 	instrs *oSlice
@@ -14,6 +19,7 @@ type program struct {
 	labels map[string]int32
 }
 
+// Create a program.
 func newProgram() *program {
 	return &program{
 		0,

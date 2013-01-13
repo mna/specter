@@ -9,8 +9,11 @@ import (
 )
 
 const (
+	// Initial lines slice capacity
 	_LINES_CAP = 1000
-	_MAX_ARGS  = 2
+
+	// Maximum number of arguments for an opcode
+	_MAX_ARGS = 2
 )
 
 /*
@@ -23,6 +26,8 @@ func (vm *VM) parse2(r io.Reader) {
 }
 */
 
+// Parse the content from the reader, load it into the program so that it can
+// be executed.
 func (vm *VM) parse(r io.Reader) {
 	bio := bufio.NewReader(r)
 	lines := make([][]string, 0, _LINES_CAP)
@@ -33,7 +38,7 @@ func (vm *VM) parse(r io.Reader) {
 	for l, err := bio.ReadString('\n'); true; l, err = bio.ReadString('\n') {
 		// Split the line in tokens (ReadString returns the delimiter)
 		lines = append(lines, strings.FieldsFunc(l, func(r rune) bool {
-			// Split on either a space, a comma or a tab
+			// Split on either a space, a comma or a tab (or newline)
 			switch r {
 			case ' ', ',', '\t', '\n':
 				return true
@@ -92,7 +97,6 @@ func (vm *VM) parse(r io.Reader) {
 		// Loop through the tokens, store arguments
 		hasInstr := false
 		argIdx := 0
-		//fmt.Printf("processing line %+v\n", toks)
 
 		for _, tok := range toks {
 			if strings.HasPrefix(tok, "#") {
@@ -106,14 +110,12 @@ func (vm *VM) parse(r io.Reader) {
 
 			// Is it a label definition?
 			if strings.HasSuffix(tok, ":") {
-				//fmt.Println("found label ", tok)
 				continue
 			}
 
 			// Is it an instruction (opcode)?
 			if _, ok := opsMap[tok]; ok {
 				instrIdx++
-				//fmt.Printf("found opcode %s [%d]\n", tok, instrIdx)
 				hasInstr = true
 				continue
 			}
@@ -126,27 +128,25 @@ func (vm *VM) parse(r io.Reader) {
 				panic(fmt.Sprintf("found excessive argument token '%s' after %d arguments", tok, _MAX_ARGS))
 			}
 			if vm.parseRegister(tok, instrIdx, argIdx) {
-				//fmt.Println("found register ", tok)
 				argIdx++
 				continue
 			}
 			if vm.parseLabelVal(tok, instrIdx, argIdx) {
-				//fmt.Println("found label jump ", tok)
 				argIdx++
 				continue
 			}
 			// Parse value panics if the value is invalid, so must be last, and no need 
 			// to add a panic after the call (or a continue)
 			if vm.parseValue(tok, instrIdx, argIdx) {
-				//fmt.Println("found value ", tok)
 				argIdx++
 			}
 		}
 	}
-	// Insert a program-ending instruction
+	// Insert a program-ending instruction, useful in execution loop
 	vm.p.instrs.addIncr(int32(_OP_END))
 }
 
+// Parse a literal value (with an optional base code)
 func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
 	sepIdx := strings.IndexRune(tok, '|')
 	base := 0
@@ -167,6 +167,8 @@ func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
 			panic(fmt.Sprintf("invalid base notation for value token '%s'", tok))
 		}
 	}
+	// ParseInt natively supports decimals and hexadecimals (if value starts with 0x).
+	// Other bases must use the | notation.
 	if i, err := strconv.ParseInt(val, base, 32); err != nil {
 		panic(err)
 	} else {
@@ -179,6 +181,7 @@ func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
 	panic("unreachable")
 }
 
+// Parse a register name.
 func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
 	if reg, ok := rgsMap[tok]; ok {
 		vm.p.args[instrIdx][argIdx] = &vm.m.registers[reg]
@@ -188,6 +191,7 @@ func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
 	return false
 }
 
+// Parse an instruction code (opcode).
 func (vm *VM) parseInstr(tok string) bool {
 	if op, ok := opsMap[tok]; ok {
 		// This is an instruction token
@@ -198,6 +202,7 @@ func (vm *VM) parseInstr(tok string) bool {
 	return false
 }
 
+// Parse a label value (label used as argument, i.e. to a jump).
 func (vm *VM) parseLabelVal(tok string, instrIdx int, argIdx int) bool {
 	if instr, ok := vm.p.labels[tok]; ok {
 		// In Go, it is totally legal to grab the address of a stack variable, so
@@ -210,6 +215,7 @@ func (vm *VM) parseLabelVal(tok string, instrIdx int, argIdx int) bool {
 	return false
 }
 
+// Parse a label definition.
 func (vm *VM) parseLabelDef(tok string) bool {
 	if strings.HasSuffix(tok, ":") {
 		// This is a label
@@ -220,7 +226,7 @@ func (vm *VM) parseLabelDef(tok string) bool {
 			// This label uses a register name
 			panic(fmt.Sprintf("the register name '%s' cannot be used as label", lbl))
 		}
-		// Check if this is a duplicate TODO : Return error instead?
+		// Check if this is a duplicate
 		if _, ok := vm.p.labels[lbl]; ok {
 			// This label already exists
 			panic(fmt.Sprintf("a label '%s' already exists", lbl))

@@ -5,11 +5,13 @@ import (
 	"io"
 )
 
+// The VM, with its program and memory abstractions.
 type VM struct {
 	p *program
 	m *memory
 }
 
+// Create a new VM.
 func New() *VM {
 	return &VM{newProgram(), newMemory()}
 }
@@ -18,12 +20,16 @@ func New() *VM {
 func (vm *VM) Run(r io.Reader) {
 	var i int32
 
+	// Parse the content to execute.
 	vm.parse(r)
+
+	// Execution loop.
 	for i = vm.p.start; vm.p.instrs.sl[i] != int32(_OP_END); i++ {
 		vm.runInstruction(&i)
 	}
 }
 
+// Run a single instruction.
 func (vm *VM) runInstruction(instrIndex *int32) {
 	a0, a1 := vm.p.args[*instrIndex][0], vm.p.args[*instrIndex][1]
 

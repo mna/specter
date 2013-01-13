@@ -1,7 +1,9 @@
 package vm
 
+// The operation code type.
 type opcode int32
 
+// List of available opcodes.
 const (
 	_OP_END opcode = iota - 1
 	_OP_NOP
@@ -39,6 +41,7 @@ const (
 )
 
 var (
+	// Reverse lookup of opcodes (opcode index = opcode string name)
 	opsRev = [...]string{
 		_OP_NOP:   "nop",
 		_OP_INT:   "int",
@@ -74,6 +77,7 @@ var (
 		_OP_PRN:   "prn",
 	}
 
+	// Lookup of opcodes (opcode string name key = opcode integer value)
 	opsMap = map[string]opcode{
 		"nop":   _OP_NOP,
 		"int":   _OP_INT,
@@ -110,12 +114,15 @@ var (
 	}
 )
 
+// Stringer implementation for debugging purpose.
 func (o opcode) String() string {
 	return opsRev[o]
 }
 
+// Register code type.
 type regcode int32
 
+// List of available register codes.
 const (
 	_RG_EAX regcode = iota
 	_RG_EBX
@@ -137,6 +144,7 @@ const (
 	rg_count
 )
 
+// Lookup map of registers (register string name key = register integer code)
 var rgsMap = map[string]regcode{
 	"eax": _RG_EAX,
 	"ebx": _RG_EBX,

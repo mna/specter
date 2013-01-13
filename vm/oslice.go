@@ -9,6 +9,7 @@ type oSlice struct {
 	expand int32
 }
 
+// Create an optimized slice.
 func newOSlice(c int32) *oSlice {
 	if c <= 0 {
 		panic("the capacity must be greater than zero")
@@ -20,6 +21,7 @@ func newOSlice(c int32) *oSlice {
 	}
 }
 
+// Add the value to the slice, and increment the length.
 func (o *oSlice) addIncr(val int32) {
 	if o.size > 0 && (o.size%o.expand) == 0 {
 		// Need to allocate more memory
@@ -30,10 +32,12 @@ func (o *oSlice) addIncr(val int32) {
 	o.size++
 }
 
+// Decrement the length (used by stacks)
 func (o *oSlice) decr() {
 	o.size--
 }
 
+// Expand the slice (allocate memory).
 func (o *oSlice) alloc() {
 	// Allocate by increments of o.expand, instead of for each element once the initial
 	// capacity is reached

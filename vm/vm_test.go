@@ -8,6 +8,7 @@ import (
 	"testing"
 )
 
+// Run all examples (*.vm files in ../cmd/examples/)
 func TestExamples(t *testing.T) {
 	const dir string = "../cmd/examples"
 	files, err := ioutil.ReadDir(dir)
