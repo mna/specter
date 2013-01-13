@@ -120,7 +120,7 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 			*instrIndex = *a0 - 1
 		}
 	case _OP_PRN:
-		fmt.Println(*a0)
+		fmt.Printf("%d\n", *a0)
 	}
 	/*
 		if *instrIndex >= 0 {

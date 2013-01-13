@@ -42,9 +42,9 @@ prof:
 	go tool pprof $(GOPATH)/bin/cmd $(CPUPROF)
 
 run:
-	time $(SPECTER) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm > /dev/null
+	$(SPECTER) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm
 
 run-tvmi:
-	time $(TVMI) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm  > /dev/null
+	$(TVMI) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm
 
 PHONY: bench all prof run install run-prof run-tvmi
