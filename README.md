@@ -4,7 +4,7 @@ Specter is an implementation of [GenTiradentes' TinyVM][tvm] in Go (the original
 
 This is very much to learn about virtual machines (this is my first attempt at a VM, so huge thanks to GenTiradentes for making a minimal one, easy to grasp).
 
-At the moment it runs all examples available in TinyVM's repository, but it [performs poorly compared to the original][bench]. Next step is to attempt some optimizations.
+It runs all examples available in TinyVM's repository, at [roughly 30% slower than C][bench]. Next step is to attempt some optimizations.
 
 ## License
 
