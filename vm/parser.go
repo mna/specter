@@ -87,7 +87,7 @@ func (vm *VM) parse(r io.Reader) {
 
 	// Here we know exactly the number of instructions, so allocate the right size
 	// for the arguments slice
-	vm.p.args = make([][_MAX_ARGS]*int32, vm.p.instrs.size)
+	vm.p.args = make([][_MAX_ARGS]*int32, len(vm.p.instrs))
 
 	// Next, parse instruction arguments one line at a time, a single line can contain at most one instruction,
 	// possibly zero if it is only a label (a line may also contain a label AND an
@@ -143,7 +143,7 @@ func (vm *VM) parse(r io.Reader) {
 		}
 	}
 	// Insert a program-ending instruction, useful in execution loop
-	vm.p.instrs.addIncr(int32(_OP_END))
+	vm.p.instrs = append(vm.p.instrs, _OP_END)
 }
 
 // Parse a literal value (with an optional base code)
@@ -195,7 +195,7 @@ func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
 func (vm *VM) parseInstr(tok string) bool {
 	if op, ok := opsMap[tok]; ok {
 		// This is an instruction token
-		vm.p.instrs.addIncr(int32(op))
+		vm.p.instrs = append(vm.p.instrs, op)
 		return true
 	}
 
@@ -232,10 +232,10 @@ func (vm *VM) parseLabelDef(tok string) bool {
 			panic(fmt.Sprintf("a label '%s' already exists", lbl))
 		}
 		// Store it with a pointer to the next instruction
-		vm.p.labels[lbl] = vm.p.instrs.size
+		vm.p.labels[lbl] = int32(len(vm.p.instrs))
 		// If this is the special-case "start" label, store the start instruction
 		if lbl == "start" {
-			vm.p.start = vm.p.instrs.size
+			vm.p.start = int32(len(vm.p.instrs))
 		}
 
 		return true

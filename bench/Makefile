@@ -60,4 +60,4 @@ cmp:
 	$(TVMI) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm	> $(RESULTS)/tmp_tvmi
 	diff $(RESULTS)/tmp_specter $(RESULTS)/tmp_tvmi
 
-PHONY: bench all prof run install run-prof cmp
+.PHONY: bench all prof run install run-prof cmp

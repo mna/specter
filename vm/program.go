@@ -12,9 +12,7 @@ const (
 // and the start instruction index.
 type program struct {
 	start  int32 // Instruction index of the (optional) start label (or 0 - start at beginning)
-	instrs *oSlice
-
-	// TODO : extract interface from oSlice, use same pattern for args and labels?
+	instrs []opcode
 	args   [][_MAX_ARGS]*int32
 	labels map[string]int32
 }
@@ -23,7 +21,7 @@ type program struct {
 func newProgram() *program {
 	return &program{
 		0,
-		newOSlice(_INSTRS_CAP),
+		make([]opcode, 0, _INSTRS_CAP),
 		nil,
 		make(map[string]int32, _LABELS_CAP),
 	}

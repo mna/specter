@@ -12,7 +12,6 @@ import (
 type VM struct {
 	p *program
 	m *memory
-	// For PRN opcode
 	b *bufio.Writer
 }
 
@@ -30,8 +29,7 @@ func (vm *VM) Run(r io.Reader) {
 
 	// Execution loop.
 	defer vm.b.Flush()
-
-	for i = vm.p.start; vm.p.instrs.sl[i] != int32(_OP_END); i++ {
+	for i = vm.p.start; vm.p.instrs[i] != _OP_END; i++ {
 		vm.runInstruction(&i)
 	}
 }
@@ -42,7 +40,7 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 
 	//printInstr("before", *instrIndex, opcode(vm.p.instrs.sl[*instrIndex]), a0, a1)
 
-	switch opcode(vm.p.instrs.sl[*instrIndex]) {
+	switch vm.p.instrs[*instrIndex] {
 	case _OP_NOP:
 		// Nothing
 	case _OP_INT:
