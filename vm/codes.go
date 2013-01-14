@@ -38,6 +38,7 @@ const (
 	_OP_JL
 	_OP_JLE
 	_OP_PRN
+	opcode_count
 )
 
 var (
