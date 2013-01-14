@@ -1,8 +1,11 @@
 package vm
 
 import (
+	//"bytes"
 	"fmt"
 	"io"
+	"os"
+	//"strconv"
 )
 
 // The VM, with its program and memory abstractions.
@@ -75,11 +78,15 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 	case _OP_AND:
 		*a0 &= *a1
 	case _OP_SHL:
-		// TODO : Unimplemented, cannot shift on signed int32
-		//*a0 <<= *a1
+		// cannot shift on signed int32
+		if *a1 > 0 {
+			*a0 <<= uint(*a1)
+		}
 	case _OP_SHR:
-		// TODO : Unimplemented, cannot shift on signed int32
-		//*a0 >>= *a1
+		// cannot shift on signed int32
+		if *a1 > 0 {
+			*a0 >>= uint(*a1)
+		}
 	case _OP_CMP:
 		if *a0 == *a1 {
 			vm.m.FLAGS = 0x1
@@ -121,6 +128,14 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 		}
 	case _OP_PRN:
 		fmt.Printf("%d\n", *a0)
+		/*
+			// Not faster than fmt.Printf()
+			// Same thing when using two calls to os.Stdout.Write (one for the value, one for \n)
+			var b bytes.Buffer
+			b.WriteString(strconv.FormatInt(int64(*a0), 10))
+			b.WriteRune('\n')
+			os.Stdout.Write(b.Bytes())
+		*/
 	}
 	/*
 		if *instrIndex >= 0 {
