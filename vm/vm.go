@@ -1,22 +1,24 @@
 package vm
 
 import (
-	//"bytes"
+	"bufio"
 	"fmt"
 	"io"
 	"os"
-	//"strconv"
+	"strconv"
 )
 
 // The VM, with its program and memory abstractions.
 type VM struct {
 	p *program
 	m *memory
+	// For PRN opcode
+	b *bufio.Writer
 }
 
 // Create a new VM.
 func New() *VM {
-	return &VM{newProgram(), newMemory()}
+	return &VM{newProgram(), newMemory(), bufio.NewWriter(os.Stdout)}
 }
 
 // Run executes the vm bytecode read by the reader.
@@ -27,6 +29,8 @@ func (vm *VM) Run(r io.Reader) {
 	vm.parse(r)
 
 	// Execution loop.
+	defer vm.b.Flush()
+
 	for i = vm.p.start; vm.p.instrs.sl[i] != int32(_OP_END); i++ {
 		vm.runInstruction(&i)
 	}
@@ -127,15 +131,9 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 			*instrIndex = *a0 - 1
 		}
 	case _OP_PRN:
-		fmt.Printf("%d\n", *a0)
-		/*
-			// Not faster than fmt.Printf()
-			// Same thing when using two calls to os.Stdout.Write (one for the value, one for \n)
-			var b bytes.Buffer
-			b.WriteString(strconv.FormatInt(int64(*a0), 10))
-			b.WriteRune('\n')
-			os.Stdout.Write(b.Bytes())
-		*/
+		//fmt.Printf("%d\n", *a0)
+		vm.b.WriteString(strconv.FormatInt(int64(*a0), 10))
+		vm.b.WriteRune('\n')
 	}
 	/*
 		if *instrIndex >= 0 {

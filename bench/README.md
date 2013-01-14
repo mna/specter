@@ -12,9 +12,9 @@ You can run the scripts with this command:
 
     make bench FILE=fib LOOPS=1000
 
-By default (if neither FILE nor LOOPS are specified), it runs with `fib` and `1000`. The FILE argument is the base example file name to run, without the `.vm` extension. The LOOPS argument is the number of iteration. It uses `time` to capture the execution time.
+By default (if neither FILE nor LOOPS are specified), it runs with `fib` and `1000`. The FILE argument is the base example file name to run, without the `.vm` extension. The LOOPS argument is the number of iteration. It uses `[g]time` to capture the execution time.
 
-You can also run all benchmarks (that is, run the benchmark for all .vm files in the ./cmd/examples/ directory) with `make all`.
+You can also run all benchmarks (that is, run the benchmark for all .vm files in the ./cmd/examples/ directory) with `make all`. To compare results (make sure that the output of specter is the same as the output of TinyVM), run `make cmp`.
 
 ## Performance
 
