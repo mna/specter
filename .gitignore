@@ -2,3 +2,4 @@
 .DS_Store
 cmd/cmd
 *.prof
+bench/results/tmp*
