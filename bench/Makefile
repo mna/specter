@@ -25,6 +25,8 @@ all:
 	$(MAKE) bench FILE=fib
 	$(MAKE) bench FILE=jsr
 	$(MAKE) bench FILE=loop
+	$(MAKE) bench FILE=loop2
+	$(MAKE) bench FILE=loop3 LOOPS=10 # takes a lot of time
 	$(MAKE) bench FILE=nop
 	$(MAKE) bench FILE=primes
 	$(MAKE) bench FILE=stack_bench
