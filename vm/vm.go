@@ -15,44 +15,73 @@ type VM struct {
 	b *bufio.Writer
 }
 
-var opCalls map[opcode]func(*VM, *int32, *int32, *int32)
-
-func init() {
-	opCalls = make(map[opcode]func(*VM, *int32, *int32, *int32), opcode_count)
-	opCalls[_OP_MOV] = func(_ *VM, i, a0, a1 *int32) {
+var opCalls = []func(*VM, *int32, *int32, *int32){
+	_OP_NOP: func(_ *VM, _, _, _ *int32) {},
+	_OP_INT: func(_ *VM, _, _, _ *int32) {},
+	_OP_MOV: func(_ *VM, i, a0, a1 *int32) {
 		*a0 = *a1
-	}
-	opCalls[_OP_PUSH] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_PUSH: func(vm *VM, i, a0, a1 *int32) {
 		vm.m.pushStack(*a0)
-	}
-	opCalls[_OP_POP] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_POP: func(vm *VM, i, a0, a1 *int32) {
 		vm.m.popStack(a0)
-	}
-	opCalls[_OP_PUSHF] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_PUSHF: func(vm *VM, i, a0, a1 *int32) {
 		vm.m.pushStack(vm.m.FLAGS)
-	}
-	opCalls[_OP_POPF] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_POPF: func(vm *VM, i, a0, a1 *int32) {
 		vm.m.popStack(a0)
-	}
-	opCalls[_OP_INC] = func(_ *VM, i, a0, a1 *int32) {
+	},
+	_OP_INC: func(_ *VM, i, a0, a1 *int32) {
 		(*a0)++
-	}
-	opCalls[_OP_DEC] = func(_ *VM, i, a0, a1 *int32) {
+	},
+	_OP_DEC: func(_ *VM, i, a0, a1 *int32) {
 		(*a0)--
-	}
-	opCalls[_OP_ADD] = func(_ *VM, i, a0, a1 *int32) {
+	},
+	_OP_ADD: func(_ *VM, i, a0, a1 *int32) {
 		*a0 += *a1
-	}
-	opCalls[_OP_SUB] = func(_ *VM, i, a0, a1 *int32) {
+	},
+	_OP_SUB: func(_ *VM, i, a0, a1 *int32) {
 		*a0 -= *a1
-	}
-	opCalls[_OP_MUL] = func(_ *VM, i, a0, a1 *int32) {
+	},
+	_OP_MUL: func(_ *VM, i, a0, a1 *int32) {
 		*a0 *= *a1
-	}
-	opCalls[_OP_DIV] = func(_ *VM, i, a0, a1 *int32) {
+	},
+	_OP_DIV: func(_ *VM, i, a0, a1 *int32) {
 		*a0 /= *a1
-	}
-	opCalls[_OP_CMP] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_MOD: func(vm *VM, i, a0, a1 *int32) {
+		vm.m.remainder = *a0 % *a1
+	},
+	_OP_REM: func(vm *VM, _, a0, _ *int32) {
+		*a0 = vm.m.remainder
+	},
+	_OP_NOT: func(_ *VM, _, a0, _ *int32) {
+		*a0 = ^(*a0)
+	},
+	_OP_XOR: func(_ *VM, _, a0, a1 *int32) {
+		*a0 ^= *a1
+	},
+	_OP_OR: func(_ *VM, _, a0, a1 *int32) {
+		*a0 |= *a1
+	},
+	_OP_AND: func(_ *VM, _, a0, a1 *int32) {
+		*a0 &= *a1
+	},
+	_OP_SHL: func(_ *VM, _, a0, a1 *int32) {
+		// cannot shift on signed int32
+		if *a1 > 0 {
+			*a0 <<= uint(*a1)
+		}
+	},
+	_OP_SHR: func(_ *VM, _, a0, a1 *int32) {
+		// cannot shift on signed int32
+		if *a1 > 0 {
+			*a0 >>= uint(*a1)
+		}
+	},
+	_OP_CMP: func(vm *VM, i, a0, a1 *int32) {
 		if *a0 == *a1 {
 			vm.m.FLAGS = 0x1
 		} else if *a0 > *a1 {
@@ -60,31 +89,52 @@ func init() {
 		} else {
 			vm.m.FLAGS = 0x0
 		}
-	}
-	opCalls[_OP_CALL] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_CALL: func(vm *VM, i, a0, a1 *int32) {
 		vm.m.pushStack(*i)
+		// Include the call to _OP_JMP, to avoid another function call
 		*i = *a0 - 1
-	}
-	opCalls[_OP_JMP] = func(_ *VM, i, a0, a1 *int32) {
+	},
+	_OP_JMP: func(_ *VM, i, a0, a1 *int32) {
 		*i = *a0 - 1
-	}
-	opCalls[_OP_JL] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_RET: func(vm *VM, i, a0, a1 *int32) {
+		vm.m.popStack(i)
+	},
+	_OP_JE: func(vm *VM, i, a0, a1 *int32) {
+		if vm.m.FLAGS&0x1 != 0 {
+			*i = *a0 - 1
+		}
+	},
+	_OP_JNE: func(vm *VM, i, a0, a1 *int32) {
+		if vm.m.FLAGS&0x1 == 0 {
+			*i = *a0 - 1
+		}
+	},
+	_OP_JG: func(vm *VM, i, a0, a1 *int32) {
+		if vm.m.FLAGS&0x2 != 0 {
+			*i = *a0 - 1
+		}
+	},
+	_OP_JGE: func(vm *VM, i, a0, a1 *int32) {
+		if vm.m.FLAGS&0x3 != 0 {
+			*i = *a0 - 1
+		}
+	},
+	_OP_JL: func(vm *VM, i, a0, a1 *int32) {
 		if vm.m.FLAGS&0x3 == 0 {
 			*i = *a0 - 1
 		}
-	}
-	opCalls[_OP_JLE] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_JLE: func(vm *VM, i, a0, a1 *int32) {
 		if vm.m.FLAGS&0x2 == 0 {
 			*i = *a0 - 1
 		}
-	}
-	opCalls[_OP_PRN] = func(vm *VM, i, a0, a1 *int32) {
+	},
+	_OP_PRN: func(vm *VM, i, a0, a1 *int32) {
 		vm.b.WriteString(strconv.FormatInt(int64(*a0), 10))
 		vm.b.WriteRune('\n')
-	}
-	opCalls[_OP_RET] = func(vm *VM, i, a0, a1 *int32) {
-		vm.m.popStack(i)
-	}
+	},
 }
 
 // Create a new VM.
@@ -112,12 +162,7 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 
 	//printInstr("before", *instrIndex, opcode(vm.p.instrs[*instrIndex]), a0, a1)
 
-	f, ok := opCalls[vm.p.instrs[*instrIndex]]
-	if ok {
-		f(vm, instrIndex, a0, a1)
-	} else {
-		panic(fmt.Sprintf("missing function for opcode %s", vm.p.instrs[*instrIndex]))
-	}
+	opCalls[vm.p.instrs[*instrIndex]](vm, instrIndex, a0, a1)
 
 	/*
 		if *instrIndex >= 0 {
