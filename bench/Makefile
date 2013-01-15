@@ -4,6 +4,7 @@ CPUPROF=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/cpu.prof
 SPECTER=$(GOPATH)/bin/cmd
 TVMI=$(HOME)/subwrkspc/tinyvm/bin/tvmi
 RESULTS=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/results
+EXDIR=$(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples
 
 .SILENT:
 	# Do not print Make commands
@@ -14,8 +15,9 @@ RESULTS=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/results
 bench:
 	# Times the execution of the specified file for both implementations, printing only 
 	# the timing information.
-	"./xtime.sh" "./loop_tvm.sh" $(FILE) $(LOOPS) | tail -n 0
-	"./xtime.sh" "./loop_specter.sh" $(FILE) $(LOOPS) | tail -n 0
+	# Not needed anymore, C time will not change...
+	# "./xtime.sh" "./loop_tvm.sh" $(FILE) $(LOOPS) | tail -n 0	
+	"./xtime.sh" "./loop_specter.sh" $(FILE) $(LOOPS) | tail -n 0	
 
 all:
 	# Run the benchmark (timing the execution) for all .vm files
@@ -39,18 +41,18 @@ install:
 	# Build and install the packages (VM and Main)
 	go install github.com/PuerkitoBio/specter/...
 
-run-prof:
-	# Run the benchmark tool to produce the CPU profiling data
-	go test github.com/PuerkitoBio/specter/vm --bench "BenchmarkForProfiling" --cpuprofile $(CPUPROF)
-
 prof:
-	# Run the go profiler on the Specter executable, with the existing CPU profiling data
-	go tool pprof $(GOPATH)/bin/cmd $(CPUPROF)
+	# Run in profiling mode
+	$(SPECTER) -cpu=$(CPUPROF) $(EXDIR)/$(FILE).vm
+	go tool pprof $(SPECTER) $(CPUPROF)
 
 run:
 	# Run a single iteration, not timed, of the specified file for each implementation
 	$(SPECTER) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm
 	$(TVMI) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm
+
+gdb:
+	gdb $(SPECTER) -d $(GOROOT)
 
 cmp:
 	# Run and save the output for the specified file for each implementation, and compare the results.
@@ -60,4 +62,4 @@ cmp:
 	$(TVMI) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm	> $(RESULTS)/tmp_tvmi
 	diff $(RESULTS)/tmp_specter $(RESULTS)/tmp_tvmi
 
-.PHONY: bench all prof run install run-prof cmp
+.PHONY: bench all prof run install cmp gdb

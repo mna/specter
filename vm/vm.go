@@ -131,7 +131,8 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 	case _OP_PRN:
 		//fmt.Printf("%d\n", *a0)
 		vm.b.WriteString(strconv.FormatInt(int64(*a0), 10))
-		vm.b.WriteRune('\n')
+		// WriteRune calls WriteByte, so save a call
+		vm.b.WriteByte('\n')
 	}
 	/*
 		if *instrIndex >= 0 {
