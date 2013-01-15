@@ -18,6 +18,11 @@ You can also run all benchmarks (that is, run the benchmark for all .vm files in
 
 ## Performance
 
-At the moment, Go's implementation is between 1.3 and 1.8 times the C implementation (except `loop.vm` which is much slower, and `nop.vm`, almost 2 times) on a 2012 MacBook Pro Retina (Core i7 2.3GHz, 8Gb RAM). I'm positive optimizations can be made, as this is pretty much a first draft of porting TinyVM's code.
+All tests are run on a 2012 MacBook Pro Retina (Core i7 2.3GHz, 8Gb RAM).
 
-See the `./results/` directory for all the numbers.
+See the `./results/` directory for the raw numbers. I keep a spreadsheet with the changes and the results [here][drive].
+
+You can follow the discussion on the golang-nuts mailing list [here][golang].
+
+[drive]: https://docs.google.com/spreadsheet/ccc?key=0Atx1KnJmATDcdEcweWdGOHdld2lVajlaN0VRbXN6MUE
+[golang]: https://groups.google.com/forum/#!topic/golang-nuts/XhK5tGUsZnQ

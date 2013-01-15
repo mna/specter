@@ -16,16 +16,6 @@ const (
 	_MAX_ARGS = 2
 )
 
-/*
-func (vm *VM) parse2(r io.Reader) {
-	bts, err := ioutil.ReadAll(r)
-	if err != nil {
-		panic(err)
-	}
-	vm.parse(bytes.NewReader(bts))
-}
-*/
-
 // Parse the content from the reader, load it into the program so that it can
 // be executed.
 func (vm *VM) parse(r io.Reader) {

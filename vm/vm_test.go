@@ -8,20 +8,31 @@ import (
 	"testing"
 )
 
-// Run all examples (*.vm files in ../cmd/examples/)
-func TestExamples(t *testing.T) {
+func getAllExampleFiles() []string {
 	const dir string = "../cmd/examples"
+
+	var ret []string
+
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
 	}
 	for _, fi := range files {
 		if filepath.Ext(fi.Name()) == ".vm" {
-			if f, err := os.Open(filepath.Join(dir, fi.Name())); err != nil {
-				t.Error(err)
-			} else {
-				runExample(t, f)
-			}
+			ret = append(ret, filepath.Join(dir, fi.Name()))
+		}
+	}
+	return ret
+}
+
+// Run all examples (*.vm files in ../cmd/examples/)
+func TestExamples(t *testing.T) {
+	files := getAllExampleFiles()
+	for _, fi := range files {
+		if f, err := os.Open(fi); err != nil {
+			t.Error(err)
+		} else {
+			runExample(t, f)
 		}
 	}
 }
@@ -29,14 +40,17 @@ func TestExamples(t *testing.T) {
 func runExample(t *testing.T, f *os.File) {
 	defer func() {
 		e := recover()
+		// Error is NOT expected for files not beginning with "err_"
 		if e != nil && !strings.HasPrefix(filepath.Base(f.Name()), "err_") {
 			t.Error(e)
 		}
+		// Error is expected for files beginning with "err_"
 		if e == nil && strings.HasPrefix(filepath.Base(f.Name()), "err_") {
 			t.Error(e)
 		}
 	}()
 
 	vm := New()
+	// The file execution panics if there is an error
 	vm.Run(f)
 }
