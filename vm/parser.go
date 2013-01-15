@@ -18,7 +18,7 @@ const (
 
 // Parse the content from the reader, load it into the program so that it can
 // be executed.
-func (vm *VM) parse(r io.Reader) {
+func parse(vm *VM, r io.Reader) {
 	bio := bufio.NewReader(r)
 	lines := make([][]string, 0, _LINES_CAP)
 	lIdx := 0
@@ -49,7 +49,7 @@ func (vm *VM) parse(r io.Reader) {
 			}
 
 			// Is it a label definition?
-			if vm.parseLabelDef(tok) {
+			if parseLabelDef(vm, tok) {
 				if hasInstr {
 					panic(fmt.Sprintf("cannot define label '%s' after an instruction on the same line", tok))
 				}
@@ -57,7 +57,7 @@ func (vm *VM) parse(r io.Reader) {
 			}
 
 			// Is it an instruction (opcode)?
-			if vm.parseInstr(tok) {
+			if parseInstr(vm, tok) {
 				hasInstr = true
 				continue
 			}
@@ -117,17 +117,17 @@ func (vm *VM) parse(r io.Reader) {
 			} else if argIdx >= _MAX_ARGS {
 				panic(fmt.Sprintf("found excessive argument token '%s' after %d arguments", tok, _MAX_ARGS))
 			}
-			if vm.parseRegister(tok, instrIdx, argIdx) {
+			if parseRegister(vm, tok, instrIdx, argIdx) {
 				argIdx++
 				continue
 			}
-			if vm.parseLabelVal(tok, instrIdx, argIdx) {
+			if parseLabelVal(vm, tok, instrIdx, argIdx) {
 				argIdx++
 				continue
 			}
 			// Parse value panics if the value is invalid, so must be last, and no need 
 			// to add a panic after the call (or a continue)
-			if vm.parseValue(tok, instrIdx, argIdx) {
+			if parseValue(vm, tok, instrIdx, argIdx) {
 				argIdx++
 			}
 		}
@@ -137,7 +137,7 @@ func (vm *VM) parse(r io.Reader) {
 }
 
 // Parse a literal value (with an optional base code)
-func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
+func parseValue(vm *VM, tok string, instrIdx int, argIdx int) bool {
 	sepIdx := strings.IndexRune(tok, '|')
 	base := 0
 	val := tok
@@ -172,7 +172,7 @@ func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
 }
 
 // Parse a register name.
-func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
+func parseRegister(vm *VM, tok string, instrIdx int, argIdx int) bool {
 	if reg, ok := rgsMap[tok]; ok {
 		vm.p.args[instrIdx][argIdx] = &vm.m.registers[reg]
 		return true
@@ -182,7 +182,7 @@ func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
 }
 
 // Parse an instruction code (opcode).
-func (vm *VM) parseInstr(tok string) bool {
+func parseInstr(vm *VM, tok string) bool {
 	if op, ok := opsMap[tok]; ok {
 		// This is an instruction token
 		vm.p.instrs = append(vm.p.instrs, op)
@@ -193,7 +193,7 @@ func (vm *VM) parseInstr(tok string) bool {
 }
 
 // Parse a label value (label used as argument, i.e. to a jump).
-func (vm *VM) parseLabelVal(tok string, instrIdx int, argIdx int) bool {
+func parseLabelVal(vm *VM, tok string, instrIdx int, argIdx int) bool {
 	if instr, ok := vm.p.labels[tok]; ok {
 		// In Go, it is totally legal to grab the address of a stack variable, so
 		// we can avoid the p.values slice altogether.
@@ -206,7 +206,7 @@ func (vm *VM) parseLabelVal(tok string, instrIdx int, argIdx int) bool {
 }
 
 // Parse a label definition.
-func (vm *VM) parseLabelDef(tok string) bool {
+func parseLabelDef(vm *VM, tok string) bool {
 	if strings.HasSuffix(tok, ":") {
 		// This is a label
 		lbl := tok[:len(tok)-1]

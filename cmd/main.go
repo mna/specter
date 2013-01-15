@@ -29,11 +29,11 @@ func main() {
 			pprof.StartCPUProfile(f)
 			defer pprof.StopCPUProfile()
 		}
-		vm := vm.New()
+		v := vm.New()
 		if f, err := os.Open(flag.Arg(0)); err != nil {
 			panic(err)
 		} else {
-			vm.Run(f)
+			vm.Run(v, f)
 		}
 	} else {
 		fmt.Println("A file name must be specified.")

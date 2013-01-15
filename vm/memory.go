@@ -42,13 +42,13 @@ func newMemory() *memory {
 }
 
 // Push value on the stack.
-func (m *memory) pushStack(i int32) {
+func pushStack(m *memory, i int32) {
 	m.stack = append(m.stack, i)
 	m.stackPos++
 }
 
 // Pop value from the stack.
-func (m *memory) popStack(i *int32) {
+func popStack(m *memory, i *int32) {
 	m.stackPos--
 	*i = m.stack[m.stackPos]
 	m.stack = m.stack[:m.stackPos]

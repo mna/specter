@@ -14,7 +14,7 @@ func BenchmarkForProfiling(b *testing.B) {
 		if f, err := os.Open(file); err != nil {
 			b.Fatal(err)
 		} else {
-			vm.Run(f)
+			Run(vm, f)
 		}
 	}
 }

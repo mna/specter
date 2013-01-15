@@ -52,5 +52,5 @@ func runExample(t *testing.T, f *os.File) {
 
 	vm := New()
 	// The file execution panics if there is an error
-	vm.Run(f)
+	Run(vm, f)
 }

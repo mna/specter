@@ -12,30 +12,32 @@ import (
 type VM struct {
 	p *program
 	m *memory
-	b *bufio.Writer
 }
+
+// Not safe for multi-threads
+var b *bufio.Writer = bufio.NewWriter(os.Stdout)
 
 // Create a new VM.
 func New() *VM {
-	return &VM{newProgram(), newMemory(), bufio.NewWriter(os.Stdout)}
+	return &VM{newProgram(), newMemory()}
 }
 
 // Run executes the vm bytecode read by the reader.
-func (vm *VM) Run(r io.Reader) {
+func Run(vm *VM, r io.Reader) {
 	var i int32
 
 	// Parse the content to execute.
-	vm.parse(r)
+	parse(vm, r)
 
 	// Execution loop.
-	defer vm.b.Flush()
+	defer b.Flush()
 	for i = vm.p.start; vm.p.instrs[i] != _OP_END; i++ {
-		vm.runInstruction(&i)
+		runInstruction(vm, &i)
 	}
 }
 
 // Run a single instruction.
-func (vm *VM) runInstruction(instrIndex *int32) {
+func runInstruction(vm *VM, instrIndex *int32) {
 	a0, a1 := vm.p.args[*instrIndex][0], vm.p.args[*instrIndex][1]
 
 	//printInstr("before", *instrIndex, opcode(vm.p.instrs.sl[*instrIndex]), a0, a1)
@@ -48,13 +50,13 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 	case _OP_MOV:
 		*a0 = *a1
 	case _OP_PUSH:
-		vm.m.pushStack(*a0)
+		pushStack(vm.m, *a0)
 	case _OP_POP:
-		vm.m.popStack(a0)
+		popStack(vm.m, a0)
 	case _OP_PUSHF:
-		vm.m.pushStack(vm.m.FLAGS)
+		pushStack(vm.m, vm.m.FLAGS)
 	case _OP_POPF:
-		vm.m.popStack(a0)
+		popStack(vm.m, a0)
 	case _OP_INC:
 		(*a0)++
 	case _OP_DEC:
@@ -98,12 +100,12 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 			vm.m.FLAGS = 0x0
 		}
 	case _OP_CALL:
-		vm.m.pushStack(*instrIndex)
+		pushStack(vm.m, *instrIndex)
 		fallthrough
 	case _OP_JMP:
 		*instrIndex = *a0 - 1
 	case _OP_RET:
-		vm.m.popStack(instrIndex)
+		popStack(vm.m, instrIndex)
 	case _OP_JE:
 		if vm.m.FLAGS&0x1 != 0 {
 			*instrIndex = *a0 - 1
@@ -130,9 +132,9 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 		}
 	case _OP_PRN:
 		//fmt.Printf("%d\n", *a0)
-		vm.b.WriteString(strconv.FormatInt(int64(*a0), 10))
+		b.WriteString(strconv.FormatInt(int64(*a0), 10))
 		// WriteRune calls WriteByte, so save a call
-		vm.b.WriteByte('\n')
+		b.WriteByte('\n')
 	}
 	/*
 		if *instrIndex >= 0 {
