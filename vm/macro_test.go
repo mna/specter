@@ -1,6 +1,8 @@
 package vm
 
 import (
+	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -50,7 +52,9 @@ func runExample(t *testing.T, f *os.File) {
 		}
 	}()
 
-	vm := New()
+	var b bytes.Buffer
+	fmt.Printf("Running example %s\n", filepath.Base(f.Name()))
+	vm := NewWithWriter(&b)
 	// The file execution panics if there is an error
 	vm.Run(f)
 }

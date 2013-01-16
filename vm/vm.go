@@ -19,6 +19,7 @@ func New() *VM {
 	return NewWithWriter(os.Stdout)
 }
 
+// Create a new VM with the specified output stream.
 func NewWithWriter(w io.Writer) *VM {
 	return &VM{newProgram(), newMemory(), bufio.NewWriter(w)}
 }

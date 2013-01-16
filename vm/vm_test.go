@@ -508,6 +508,61 @@ var tests = [...]testInfo{
     `,
 		"150\n",
 	},
+	testInfo{
+		_OP_PRN,
+		"address",
+		`
+    mov [17] 25
+    mov [124] 12
+    add [17] [124]
+    prn [17]
+    `,
+		"37\n",
+	},
+	testInfo{
+		_OP_PRN,
+		"address hex",
+		`
+    mov [0x1] 5
+    mov eax 12
+    add eax [0x1]
+    prn eax
+    `,
+		"17\n",
+	},
+	testInfo{
+		_OP_PRN,
+		"address post-hex",
+		`
+    mov [12a|h] 62|o
+    mov eax 13
+    add eax [298|d]
+    prn eax
+    `,
+		"63\n",
+	},
+	testInfo{
+		_OP_PRN,
+		"address post-octal",
+		`
+    mov [62|o] 2
+    mov eax 3
+    add eax [0x32]
+    prn eax
+    `,
+		"5\n",
+	},
+	testInfo{
+		_OP_PRN,
+		"address post-binary",
+		`
+    mov [11|b] 2
+    mov eax 3
+    add eax [3|d]
+    prn eax
+    `,
+		"5\n",
+	},
 }
 
 func TestCodes(t *testing.T) {
