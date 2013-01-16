@@ -2,7 +2,6 @@ package vm
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -17,7 +16,11 @@ type VM struct {
 
 // Create a new VM.
 func New() *VM {
-	return &VM{newProgram(), newMemory(), bufio.NewWriter(os.Stdout)}
+	return NewWithWriter(os.Stdout)
+}
+
+func NewWithWriter(w io.Writer) *VM {
+	return &VM{newProgram(), newMemory(), bufio.NewWriter(w)}
 }
 
 // Run executes the vm bytecode read by the reader.
@@ -37,8 +40,6 @@ func (vm *VM) Run(r io.Reader) {
 // Run a single instruction.
 func (vm *VM) runInstruction(instrIndex *int32) {
 	a0, a1 := vm.p.args[*instrIndex][0], vm.p.args[*instrIndex][1]
-
-	//printInstr("before", *instrIndex, opcode(vm.p.instrs.sl[*instrIndex]), a0, a1)
 
 	switch vm.p.instrs[*instrIndex] {
 	case _OP_NOP:
@@ -129,29 +130,7 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 			*instrIndex = *a0 - 1
 		}
 	case _OP_PRN:
-		//fmt.Printf("%d\n", *a0)
 		vm.b.WriteString(strconv.FormatInt(int64(*a0), 10))
-		// WriteRune calls WriteByte, so save a call
 		vm.b.WriteByte('\n')
-	}
-	/*
-		if *instrIndex >= 0 {
-			printInstr("after", *instrIndex, opcode(vm.p.instrs.sl[*instrIndex]), a0, a1)
-		} else {
-			printInstr("after", *instrIndex, opcode(vm.p.instrs.sl[*instrIndex+1]), a0, a1)
-		}
-	*/
-}
-
-func printInstr(prefix string, idx int32, op opcode, a0, a1 *int32) {
-	switch {
-	case a0 == nil && a1 == nil:
-		fmt.Printf("[%s] instr=%d: %d (%s) a0=nil, a1=nil\n", prefix, idx, op, op)
-	case a1 == nil:
-		fmt.Printf("[%s] instr=%d: %d (%s) a0=%d, a1=nil\n", prefix, idx, op, op, *a0)
-	case a0 == nil:
-		fmt.Printf("[%s] instr=%d: %d (%s) a0=nil, a1=%d\n", prefix, idx, op, op, *a1)
-	default:
-		fmt.Printf("[%s] instr=%d: %d (%s) a0=%d, a1=%d\n", prefix, idx, op, op, *a0, *a1)
 	}
 }

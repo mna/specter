@@ -17,7 +17,6 @@ func main() {
 		flag.PrintDefaults()
 	}
 	flag.StringVar(&cpuprof, "cpu", "", "activates the cpu profiler, and saves the data in this file")
-	//flag.StringVar(&memprof, "mem", "", "activates the memory profiler, and saves the data in this file")
 	flag.Parse()
 
 	if flag.NArg() > 0 {
@@ -31,7 +30,8 @@ func main() {
 		}
 		vm := vm.New()
 		if f, err := os.Open(flag.Arg(0)); err != nil {
-			panic(err)
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			os.Exit(1)
 		} else {
 			vm.Run(f)
 		}
