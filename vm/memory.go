@@ -29,7 +29,7 @@ type memory struct {
 	remainder int32
 
 	// A fixed array for the regular registers
-	registers [rg_count]int32
+	registers []int32
 
 	// Different approach than TinyVM for the stack, since it can only hold
 	// integers, use a slice.
@@ -42,6 +42,8 @@ type memory struct {
 func newMemory() *memory {
 	var m memory
 
+	// Create the registers
+	m.registers = make([]int32, rg_count)
 	// Create the stack with initial capacity
 	m.stack = make([]int32, 0, _STACK_CAP)
 	// The heap is a fixed amount of memory, set the length so that it is completely indexable
