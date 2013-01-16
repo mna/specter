@@ -463,6 +463,51 @@ var tests = [...]testInfo{
     `,
 		"1\n2\n",
 	},
+	testInfo{
+		_OP_PRN,
+		"hexa",
+		`
+    mov eax 0x1A4F
+    prn eax
+    `,
+		"6735\n",
+	},
+	testInfo{
+		_OP_PRN,
+		"hexa2",
+		`
+    mov eax 1A4F|h
+    prn eax
+    `,
+		"6735\n",
+	},
+	testInfo{
+		_OP_PRN,
+		"decimal",
+		`
+    mov eax 8374|d
+    prn eax
+    `,
+		"8374\n",
+	},
+	testInfo{
+		_OP_PRN,
+		"octal",
+		`
+    mov eax 12675|o
+    prn eax
+    `,
+		"5565\n",
+	},
+	testInfo{
+		_OP_PRN,
+		"binary",
+		`
+    mov eax 10010110|b
+    prn eax
+    `,
+		"150\n",
+	},
 }
 
 func TestCodes(t *testing.T) {
