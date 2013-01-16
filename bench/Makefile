@@ -1,6 +1,7 @@
 FILE=fib
 LOOPS=1000
-CPUPROF=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/cpu.prof
+PROFFILE=cpu.prof
+PROF=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/$(PROFFILE)
 SPECTER=$(GOPATH)/bin/cmd
 TVMI=$(HOME)/subwrkspc/tinyvm/bin/tvmi
 RESULTS=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/results
@@ -43,8 +44,8 @@ install:
 
 prof:
 	# Run in profiling mode
-	$(SPECTER) -cpu=$(CPUPROF) $(EXDIR)/$(FILE).vm
-	go tool pprof $(SPECTER) $(CPUPROF)
+	# $(SPECTER) -cpu=$(PROF) $(EXDIR)/$(FILE).vm
+	go tool pprof $(SPECTER) $(PROF)
 
 run:
 	# Run a single iteration, not timed, of the specified file for each implementation

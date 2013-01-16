@@ -17,7 +17,10 @@ const (
 )
 
 // Parse the content from the reader, load it into the program so that it can
-// be executed.
+// be executed. The parser makes minimal checks, because it is assumed that a
+// compiler/code generator produced its input, and it is up to this program
+// to give relevant errors. The VM is not there to give helpful errors to correct
+// its code.
 func (vm *VM) parse(r io.Reader) {
 	bio := bufio.NewReader(r)
 	lines := make([][]string, 0, _LINES_CAP)
@@ -77,7 +80,7 @@ func (vm *VM) parse(r io.Reader) {
 
 	// Here we know exactly the number of instructions, so allocate the right size
 	// for the arguments slice
-	vm.p.args = make([][_MAX_ARGS]*int32, len(vm.p.instrs))
+	vm.p.args = make([]*int32, len(vm.p.instrs)*2)
 
 	// Next, parse instruction arguments one line at a time, a single line can contain at most one instruction,
 	// possibly zero if it is only a label (a line may also contain a label AND an
@@ -125,6 +128,10 @@ func (vm *VM) parse(r io.Reader) {
 				argIdx++
 				continue
 			}
+			if vm.parseAddress(tok, instrIdx, argIdx) {
+				argIdx++
+				continue
+			}
 			// Parse value panics if the value is invalid, so must be last, and no need 
 			// to add a panic after the call (or a continue)
 			if vm.parseValue(tok, instrIdx, argIdx) {
@@ -138,6 +145,14 @@ func (vm *VM) parse(r io.Reader) {
 
 // Parse a literal value (with an optional base code)
 func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
+	// In Go, it is totally legal to grab the address of a stack variable, so
+	// we can avoid the p.values slice altogether.
+	i32 := toValue(tok)
+	vm.p.args[(instrIdx*2)+argIdx] = &i32
+	return true
+}
+
+func toValue(tok string) int32 {
 	sepIdx := strings.IndexRune(tok, '|')
 	base := 0
 	val := tok
@@ -162,19 +177,26 @@ func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
 	if i, err := strconv.ParseInt(val, base, 32); err != nil {
 		panic(err)
 	} else {
-		// In Go, it is totally legal to grab the address of a stack variable, so
-		// we can avoid the p.values slice altogether.
-		var i32 int32 = int32(i)
-		vm.p.args[instrIdx][argIdx] = &i32
-		return true
+		return int32(i)
 	}
 	panic("unreachable")
+}
+
+// Parse an address (heap) pointer, format: [123]
+func (vm *VM) parseAddress(tok string, instrIdx int, argIdx int) bool {
+	if strings.HasPrefix(tok, "[") {
+		i := toValue(tok[1 : len(tok)-1])
+		vm.p.args[(instrIdx*2)+argIdx] = &vm.m.heap[i]
+		return true
+	}
+
+	return false
 }
 
 // Parse a register name.
 func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
 	if reg, ok := rgsMap[tok]; ok {
-		vm.p.args[instrIdx][argIdx] = &vm.m.registers[reg]
+		vm.p.args[(instrIdx*2)+argIdx] = &vm.m.registers[reg]
 		return true
 	}
 
@@ -198,7 +220,7 @@ func (vm *VM) parseLabelVal(tok string, instrIdx int, argIdx int) bool {
 		// In Go, it is totally legal to grab the address of a stack variable, so
 		// we can avoid the p.values slice altogether.
 		var i32 int32 = int32(instr)
-		vm.p.args[instrIdx][argIdx] = &i32
+		vm.p.args[(instrIdx*2)+argIdx] = &i32
 		return true
 	}
 

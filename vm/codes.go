@@ -42,7 +42,7 @@ const (
 
 var (
 	// Reverse lookup of opcodes (opcode index = opcode string name)
-	opsRev = [...]string{
+	opsRev = []string{
 		_OP_NOP:   "nop",
 		_OP_INT:   "int",
 		_OP_MOV:   "mov",

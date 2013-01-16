@@ -13,7 +13,7 @@ const (
 type program struct {
 	start  int32 // Instruction index of the (optional) start label (or 0 - start at beginning)
 	instrs []opcode
-	args   [][_MAX_ARGS]*int32
+	args   []*int32
 	labels map[string]int32
 }
 
