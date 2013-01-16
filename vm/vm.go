@@ -40,7 +40,7 @@ func (vm *VM) Run(r io.Reader) {
 
 // Run a single instruction.
 func (vm *VM) runInstruction(instrIndex *int32) {
-	a0, a1 := vm.p.args[*instrIndex][0], vm.p.args[*instrIndex][1]
+	a0, a1 := vm.p.args[((*instrIndex)*2)+0], vm.p.args[((*instrIndex)*2)+1]
 
 	switch vm.p.instrs[*instrIndex] {
 	case _OP_NOP:

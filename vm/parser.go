@@ -80,7 +80,7 @@ func (vm *VM) parse(r io.Reader) {
 
 	// Here we know exactly the number of instructions, so allocate the right size
 	// for the arguments slice
-	vm.p.args = make([][_MAX_ARGS]*int32, len(vm.p.instrs))
+	vm.p.args = make([]*int32, len(vm.p.instrs)*2)
 
 	// Next, parse instruction arguments one line at a time, a single line can contain at most one instruction,
 	// possibly zero if it is only a label (a line may also contain a label AND an
@@ -148,7 +148,7 @@ func (vm *VM) parseValue(tok string, instrIdx int, argIdx int) bool {
 	// In Go, it is totally legal to grab the address of a stack variable, so
 	// we can avoid the p.values slice altogether.
 	i32 := toValue(tok)
-	vm.p.args[instrIdx][argIdx] = &i32
+	vm.p.args[(instrIdx*2)+argIdx] = &i32
 	return true
 }
 
@@ -186,7 +186,7 @@ func toValue(tok string) int32 {
 func (vm *VM) parseAddress(tok string, instrIdx int, argIdx int) bool {
 	if strings.HasPrefix(tok, "[") {
 		i := toValue(tok[1 : len(tok)-1])
-		vm.p.args[instrIdx][argIdx] = &vm.m.heap[i]
+		vm.p.args[(instrIdx*2)+argIdx] = &vm.m.heap[i]
 		return true
 	}
 
@@ -196,7 +196,7 @@ func (vm *VM) parseAddress(tok string, instrIdx int, argIdx int) bool {
 // Parse a register name.
 func (vm *VM) parseRegister(tok string, instrIdx int, argIdx int) bool {
 	if reg, ok := rgsMap[tok]; ok {
-		vm.p.args[instrIdx][argIdx] = &vm.m.registers[reg]
+		vm.p.args[(instrIdx*2)+argIdx] = &vm.m.registers[reg]
 		return true
 	}
 
@@ -220,7 +220,7 @@ func (vm *VM) parseLabelVal(tok string, instrIdx int, argIdx int) bool {
 		// In Go, it is totally legal to grab the address of a stack variable, so
 		// we can avoid the p.values slice altogether.
 		var i32 int32 = int32(instr)
-		vm.p.args[instrIdx][argIdx] = &i32
+		vm.p.args[(instrIdx*2)+argIdx] = &i32
 		return true
 	}
 
