@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"io"
 	"os"
+	"runtime"
 	"strconv"
+	"sync"
 )
 
 // The VM, with its program and memory abstractions.
@@ -21,25 +23,44 @@ func New() *VM {
 
 // Create a new VM with the specified output stream.
 func NewWithWriter(w io.Writer) *VM {
+	runtime.GOMAXPROCS(4)
 	return &VM{newProgram(), newMemory(), bufio.NewWriter(w)}
+}
+
+func printOutput(vm *VM, wg *sync.WaitGroup, c <-chan int32) {
+	for v := range c {
+		vm.b.WriteString(strconv.FormatInt(int64(v), 10))
+		vm.b.WriteByte('\n')
+	}
+	vm.b.Flush()
+	wg.Done()
 }
 
 // Run executes the vm bytecode read by the reader.
 func (vm *VM) Run(r io.Reader) {
 	var i int32
+	var c chan int32
+	var wg sync.WaitGroup
 
 	// Parse the content to execute.
 	vm.parse(r)
 
+	// Create the output channel and start the goroutine
+	// Tried with buffer of 1000, 10000 and 100000, not much difference in performance.
+	c = make(chan int32, 100000)
+	wg.Add(1)
+	go printOutput(vm, &wg, c)
+
 	// Execution loop.
-	defer vm.b.Flush()
 	for i = vm.p.start; vm.p.instrs[i] != _OP_END; i++ {
-		vm.runInstruction(&i)
+		vm.runInstruction(&i, c)
 	}
+	close(c)
+	wg.Wait()
 }
 
 // Run a single instruction.
-func (vm *VM) runInstruction(instrIndex *int32) {
+func (vm *VM) runInstruction(instrIndex *int32, c chan<- int32) {
 	a0, a1 := vm.p.args[((*instrIndex)*2)+0], vm.p.args[((*instrIndex)*2)+1]
 
 	switch vm.p.instrs[*instrIndex] {
@@ -131,7 +152,6 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 			*instrIndex = *a0 - 1
 		}
 	case _OP_PRN:
-		vm.b.WriteString(strconv.FormatInt(int64(*a0), 10))
-		vm.b.WriteByte('\n')
+		c <- *a0
 	}
 }
