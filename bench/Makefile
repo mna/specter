@@ -16,7 +16,7 @@ bench:
 	# Times the execution of the specified file for both implementations, printing only 
 	# the timing information.
 	# Not needed anymore, C time will not change...
-	# "./xtime.sh" "./loop_tvm.sh" $(FILE) $(LOOPS) | tail -n 0	
+	"./xtime.sh" "./loop_tvm.sh" $(FILE) $(LOOPS) | tail -n 0	
 	"./xtime.sh" "./loop_specter.sh" $(FILE) $(LOOPS) | tail -n 0	
 
 all:
