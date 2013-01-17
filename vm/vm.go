@@ -7,11 +7,14 @@ import (
 	"strconv"
 )
 
+const _PBUF_CAP = 10
+
 // The VM, with its program and memory abstractions.
 type VM struct {
-	p *program
-	m *memory
-	b *bufio.Writer
+	p    *program
+	m    *memory
+	b    *bufio.Writer
+	pbuf []byte
 }
 
 // Create a new VM.
@@ -21,7 +24,7 @@ func New() *VM {
 
 // Create a new VM with the specified output stream.
 func NewWithWriter(w io.Writer) *VM {
-	return &VM{newProgram(), newMemory(), bufio.NewWriter(w)}
+	return &VM{newProgram(), newMemory(), bufio.NewWriter(w), make([]byte, 0, _PBUF_CAP)}
 }
 
 // Run executes the vm bytecode read by the reader.
@@ -131,7 +134,9 @@ func (vm *VM) runInstruction(instrIndex *int32) {
 			*instrIndex = *a0 - 1
 		}
 	case _OP_PRN:
-		vm.b.WriteString(strconv.FormatInt(int64(*a0), 10))
-		vm.b.WriteByte('\n')
+		vm.pbuf = vm.pbuf[:0] // Clear buffer
+		vm.pbuf = strconv.AppendInt(vm.pbuf, int64(*a0), 10)
+		vm.pbuf = append(vm.pbuf, '\n')
+		vm.b.Write(vm.pbuf)
 	}
 }
