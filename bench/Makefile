@@ -40,7 +40,7 @@ all:
 
 install:
 	# Build and install the packages (VM and Main)
-	go install github.com/PuerkitoBio/specter/...
+	go install -gcflags '-B' github.com/PuerkitoBio/specter/...
 
 prof:
 	# Run in profiling mode
