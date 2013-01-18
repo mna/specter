@@ -3,7 +3,7 @@ LOOPS=1000
 PROFFILE=cpu.prof
 PROF=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/$(PROFFILE)
 SPECTER=$(GOPATH)/bin/cmd
-TVMI=$(HOME)/subwrkspc/tinyvm/bin/tvmi
+TVMI=$(SUBWRKSPC)/tinyvm/bin/tvmi
 RESULTS=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/results
 EXDIR=$(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples
 
