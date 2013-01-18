@@ -26,8 +26,8 @@ func (vm *VM) parse(r io.Reader) {
 	lines := make([][]string, 0, _LINES_CAP)
 	lIdx := 0
 
-	// First pass is to load label definitions only, since it has to be there
-	// before parsing the instructions.
+	// First pass is to load label definitions and instructions only, since it has to be there
+	// before parsing the arguments (jump-to-label).
 	for l, err := bio.ReadString('\n'); true; l, err = bio.ReadString('\n') {
 		// Split the line in tokens (ReadString returns the delimiter)
 		lines = append(lines, strings.FieldsFunc(l, func(r rune) bool {
