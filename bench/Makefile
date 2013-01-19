@@ -40,7 +40,7 @@ all:
 
 install:
 	# Build and install the packages (VM and Main)
-	go install -gcflags '-B' github.com/PuerkitoBio/specter/...
+	go install github.com/PuerkitoBio/specter/...
 
 prof:
 	# Run in profiling mode
@@ -57,8 +57,8 @@ gdb:
 
 clear:
 	rm $(SPECTER)
-	rm $(GOPATH)/pkg/linux_amd64/github.com/PuerkitoBio/specter/vm.a
-	# rm $(GOPATH)/pkg/darwin_amd64/github.com/PuerkitoBio/specter/vm.a
+	# rm $(GOPATH)/pkg/linux_amd64/github.com/PuerkitoBio/specter/vm.a
+	rm $(GOPATH)/pkg/darwin_amd64/github.com/PuerkitoBio/specter/vm.a
 
 cmp:
 	# Run and save the output for the specified file for each implementation, and compare the results.
