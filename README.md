@@ -26,5 +26,5 @@ The [BSD 3-Clause license][bsd].
 
 [bsd]: http://opensource.org/licenses/BSD-3-Clause
 [tvm]: https://github.com/GenTiradentes/tinyvm
-[bench]: https://github.com/PuerkitoBio/specter/tree/master/bench
+[bench]: https://github.com/mna/specter/tree/master/bench
 [nuts]: https://groups.google.com/forum/#!topic/golang-nuts/XhK5tGUsZnQ

@@ -1,29 +1,29 @@
 FILE=fib
 LOOPS=1000
 PROFFILE=cpu.prof
-PROF=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/$(PROFFILE)
+PROF=$(GOPATH)/src/github.com/mna/specter/bench/$(PROFFILE)
 SPECTER=$(GOPATH)/bin/cmd
 TVMI=$(SUBWRKSPC)/tinyvm/bin/tvmi
-RESULTS=$(GOPATH)/src/github.com/PuerkitoBio/specter/bench/results
-EXDIR=$(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples
+RESULTS=$(GOPATH)/src/github.com/mna/specter/bench/results
+EXDIR=$(GOPATH)/src/github.com/mna/specter/cmd/examples
 
 .SILENT:
 	# Do not print Make commands
 
-.NOTPARALLEL: 
+.NOTPARALLEL:
 	# Make sure there is no parallelism
 
 bench:
-	# Times the execution of the specified file for both implementations, printing only 
+	# Times the execution of the specified file for both implementations, printing only
 	# the timing information.
 	# Not needed anymore, C time will not change...
-	"./xtime.sh" "./loop_tvm.sh" $(FILE) $(LOOPS) | tail -n 0	
-	"./xtime.sh" "./loop_specter.sh" $(FILE) $(LOOPS) | tail -n 0	
+	"./xtime.sh" "./loop_tvm.sh" $(FILE) $(LOOPS) | tail -n 0
+	"./xtime.sh" "./loop_specter.sh" $(FILE) $(LOOPS) | tail -n 0
 
 all:
 	# Run the benchmark (timing the execution) for all .vm files
 	echo This will take a few minutes...
-	echo 
+	echo
 	$(MAKE) bench FILE=fact
 	$(MAKE) bench FILE=fib
 	$(MAKE) bench FILE=jsr
@@ -40,7 +40,7 @@ all:
 
 install:
 	# Build and install the packages (VM and Main)
-	go install github.com/PuerkitoBio/specter/...
+	go install github.com/mna/specter/...
 
 prof:
 	# Run in profiling mode
@@ -49,23 +49,23 @@ prof:
 
 run:
 	# Run a single iteration, not timed, of the specified file for each implementation
-	$(SPECTER) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm
-	$(TVMI) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm
+	$(SPECTER) $(GOPATH)/src/github.com/mna/specter/cmd/examples/$(FILE).vm
+	$(TVMI) $(GOPATH)/src/github.com/mna/specter/cmd/examples/$(FILE).vm
 
 gdb:
 	gdb $(SPECTER) -d $(GOROOT)
 
 clear:
 	rm $(SPECTER)
-	# rm $(GOPATH)/pkg/linux_amd64/github.com/PuerkitoBio/specter/vm.a
-	rm $(GOPATH)/pkg/darwin_amd64/github.com/PuerkitoBio/specter/vm.a
+	# rm $(GOPATH)/pkg/linux_amd64/github.com/mna/specter/vm.a
+	rm $(GOPATH)/pkg/darwin_amd64/github.com/mna/specter/vm.a
 
 cmp:
 	# Run and save the output for the specified file for each implementation, and compare the results.
 	# This is to make sure both have the same output.
 	echo No output means all is ok.
-	$(SPECTER) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm > $(RESULTS)/tmp_specter
-	$(TVMI) $(GOPATH)/src/github.com/PuerkitoBio/specter/cmd/examples/$(FILE).vm	> $(RESULTS)/tmp_tvmi
+	$(SPECTER) $(GOPATH)/src/github.com/mna/specter/cmd/examples/$(FILE).vm > $(RESULTS)/tmp_specter
+	$(TVMI) $(GOPATH)/src/github.com/mna/specter/cmd/examples/$(FILE).vm	> $(RESULTS)/tmp_tvmi
 	diff $(RESULTS)/tmp_specter $(RESULTS)/tmp_tvmi
 
 .PHONY: bench all prof run install cmp gdb

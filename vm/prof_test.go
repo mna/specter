@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-const file = "/Users/martin/go/src/github.com/PuerkitoBio/specter/cmd/examples/loop.vm"
+const file = "/Users/martin/go/src/github.com/mna/specter/cmd/examples/loop.vm"
 
 // Benchmark function used for profiling (see ../bench/Makefile : run-prof)
 func BenchmarkForProfiling(b *testing.B) {

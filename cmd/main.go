@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/PuerkitoBio/specter/vm"
 	"os"
 	"runtime/pprof"
+
+	"github.com/mna/specter/vm"
 )
 
 func main() {
